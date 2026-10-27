@@ -13,7 +13,8 @@ Rebuilt from scratch on Oct 26 from the User Flow board, the Figma key frames (P
 3. **P1 Upload:** "Upload All Relevant Documents", Upload files / drag and drop, or **Use Demo Files**. Before any demo files load, a pop-up asks **which demo to explore**: Digital Product Design or Mainframe Engineering. It preselects the field from About you, and **Change** swaps the files.
 4. **Thinking......:** the Knowledge agent reads each file, then the Validate agent runs the four checks from the flow.
 5. **Mind map** (P2 zoomed out, P3 zoomed in): a canvas you can pan and zoom. It opens zoomed out so the whole map fits.
-   - Black circles are validated. A dashed ring means the point needs the expert. A "!" means two files disagree.
+   - Black circles are validated. A white circle with a dashed ring needs the expert, and a slow ripple draws the eye to it (it stops when Motion is set to reduced). A "!" means two files disagree.
+   - Zoomed out, outlines and lines keep their on-screen thickness, so the points, the centre circle and the lines stay crisp. Section names move to a spot where they don't cover a point.
    - The right panel shows the twin name, Sources (+), Progress, and **Tasks**. **Complete** is at the bottom right.
 6. **First-time tour** (offered the first time a user opens a mind map): move around, the panel, **Choose a Task** (P4: blurred map with a dashed arrow), then it walks the user through completing and validating one knowledge point.
 7. **Knowledge point:** full screen, like Claude or ChatGPT.

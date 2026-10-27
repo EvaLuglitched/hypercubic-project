@@ -341,11 +341,14 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
 .mm-viewport.is-panning { cursor: grabbing; }
 .mm-viewport:focus-visible { outline: 3px solid var(--ink); outline-offset: -6px; }
 .mm-world { position: absolute; left: 0; top: 0; width: 1px; height: 1px; transform-origin: 0 0; will-change: transform; }
-.mm-world.is-animating { transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
+/* --k is the zoom level. It animates with the zoom, so outlines that hold their on-screen thickness don't jump. */
+@property --k { syntax: '<number>'; inherits: true; initial-value: 1; }
+.mm-world.is-animating { transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), --k 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .mm-links { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
-.mm-links line { stroke: var(--ink); stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+/* Lines hold their on-screen thickness and dash length when zoomed out, like the circles' outlines. */
+.mm-links line { stroke: var(--ink); stroke-width: max(1.25px, calc(1.25px / var(--k))); }
 .mm-links line.is-spoke { stroke-opacity: 0.85; }
-.mm-links line.is-cross { stroke: #b8b8b8; stroke-dasharray: 4 6; }
+.mm-links line.is-cross { stroke: #b8b8b8; stroke-width: max(1px, calc(1px / var(--k))); stroke-dasharray: max(4px, calc(4px / var(--k))) max(6px, calc(6px / var(--k))); }
 .mm-node {
   position: absolute; display: flex; align-items: center; justify-content: center; padding: 14px;
   border-radius: 50%; border: 2px solid var(--ink); background: var(--white); color: var(--ink);
@@ -356,22 +359,44 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
 .mm-node .mm-label { display: block; max-width: 100%; overflow-wrap: anywhere; }
 .mm-node.is-done { background: var(--ink); color: var(--white); }
 .mm-node.is-hub { background: var(--ink); color: var(--white); font-weight: 600; font-size: 18px; }
-.mm-node.is-root { background: var(--white); color: var(--ink); border-width: 3px; font-weight: 700; font-size: 19px; box-shadow: 0 0 0 7px var(--white), 0 0 0 9px var(--ink); }
-.mm-node.is-gap::before, .mm-node.is-gap::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
-.mm-node.is-gap::before { inset: -11px; border: 1.75px dashed var(--ink); }
-.mm-node.is-gap::after { inset: -22px; border: 1.25px dashed #a8a8a8; }
-.mm-badge { position: absolute; top: -2px; right: -2px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--white); border: 3px solid var(--white); font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-.mm-node.is-selected { outline: 4px solid var(--ink); outline-offset: 30px; }
+/* The twin itself: a white circle with a solid ring around it, which also holds its thickness when zoomed out. */
+.mm-node.is-root {
+  --halo: max(7px, calc(2.5px / var(--k)));
+  background: var(--white); color: var(--ink); border-width: max(3px, calc(2.5px / var(--k))); font-weight: 700; font-size: 19px;
+  box-shadow: 0 0 0 var(--halo) var(--white), 0 0 0 calc(var(--halo) + max(2px, calc(1.5px / var(--k)))) var(--ink);
+  transition: transform 0.15s; /* the ring follows the zoom at once */
+}
+/* Needs you: a white circle with one dashed ring close around it, and a ripple that radiates from the ring.
+   --k is the zoom level and --node-r the circle's radius. Zoomed out, the lines keep their on-screen thickness,
+   the ring keeps a small gap and the dashes keep their length (about 13px apart), so the points stay crisp. */
+.mm-node.is-gap {
+  --bw: max(2px, calc(2px / var(--k)));
+  --ring: max(13px, calc(3.25px / var(--k)));
+  --dashes: max(6, round(calc(0.4833 * (var(--node-r) + max(13, 3.25 / var(--k))) * var(--k))));
+  border-width: var(--bw);
+}
+.mm-node.is-gap::before, .mm-node.is-gap::after {
+  content: ""; position: absolute; inset: calc(-1 * (var(--bw) + var(--ring))); border-radius: 50%; pointer-events: none;
+  border: max(1.5px, calc(1.25px / var(--k))) solid var(--ink);
+}
+.mm-node.is-gap::before {
+  -webkit-mask: repeating-conic-gradient(#000 0 calc(209deg / var(--dashes)), transparent 0 calc(360deg / var(--dashes)));
+  mask: repeating-conic-gradient(#000 0 calc(209deg / var(--dashes)), transparent 0 calc(360deg / var(--dashes)));
+}
+.mm-node.is-gap::after { opacity: 0; animation: radiate 2.4s cubic-bezier(0.25, 0.6, 0.3, 1) infinite; }
+@keyframes radiate { 0% { opacity: 0; transform: scale(1); } 15% { opacity: 0.5; } 75%, 100% { opacity: 0; transform: scale(1.5); } }
+.mm-badge { z-index: 1; position: absolute; top: -2px; right: -2px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--white); border: 3px solid var(--white); font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.mm-node.is-selected { outline: max(4px, calc(3px / var(--k))) solid var(--ink); outline-offset: 30px; }
 .mm-node.is-done.is-selected, .mm-node.is-hub.is-selected { outline-offset: 10px; }
 .mm-node.is-root.is-selected { outline-offset: 16px; }
-.mm-node:focus-visible { outline: 4px solid var(--ink); outline-offset: 30px; }
+.mm-node:focus-visible { outline: max(4px, calc(3px / var(--k))) solid var(--ink); outline-offset: 30px; }
 .mm-node.is-done:focus-visible, .mm-node.is-hub:focus-visible { outline-offset: 10px; }
 .mm-node.is-pulse { animation: node-pulse 1.1s ease-in-out 3; }
 @keyframes node-pulse { 50% { box-shadow: 0 0 0 18px rgba(20, 20, 20, 0.16); } }
 .is-overview .mm-node .mm-label, .is-overview .mm-badge { visibility: hidden; }
 .is-overview .mm-node:hover { transform: scale(1.12); }
 .mm-hub-labels { position: absolute; inset: 0; pointer-events: none; }
-.mm-hub-label { position: absolute; transform: translate(-50%, 0); padding: 0.125rem 0.625rem; border-radius: 999px; background: rgba(255, 255, 255, 0.92); font-family: var(--mono); font-size: 0.8125rem; font-weight: 500; white-space: nowrap; }
+.mm-hub-label { position: absolute; padding: 0.125rem 0.5rem; border-radius: 999px; background: rgba(255, 255, 255, 0.92); font-family: var(--mono); font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
 .mm-hub-label.is-root-label { font-family: var(--font); font-size: 1rem; font-weight: 600; }
 .mm-pop { position: absolute; z-index: 4; width: 19rem; padding: 1.125rem 1.25rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow-lg); cursor: default; }
 .mm-pop .pop-sec { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); padding-right: 2.25rem; }
@@ -382,7 +407,12 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
 .mm-pop .pop-actions { display: flex; gap: 0.5rem; }
 .dot-mini { display: inline-block; width: 0.875rem; height: 0.875rem; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
 .dot-mini.is-done { background: var(--ink); }
-.dot-mini.is-gap { border-style: dashed; }
+/* The same circle and dashed ring as a "Needs you" point on the map. */
+.dot-mini.is-gap {
+  border: 0; background: var(--ink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23000'%3E%3Ccircle cx='7' cy='7' r='3.9' stroke-width='1.4'/%3E%3Ccircle cx='7' cy='7' r='6.4' stroke-width='1' pathLength='8' stroke-dasharray='.58 .42'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23000'%3E%3Ccircle cx='7' cy='7' r='3.9' stroke-width='1.4'/%3E%3Ccircle cx='7' cy='7' r='6.4' stroke-width='1' pathLength='8' stroke-dasharray='.58 .42'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
 .dot-mini.is-conflict { border-style: dashed; position: relative; }
 
 .map-panel { position: fixed; top: 1.875rem; right: 1.75rem; z-index: 6; width: var(--panel-w); max-height: calc(100vh - 8.5rem); display: flex; flex-direction: column; gap: 0.75rem; }

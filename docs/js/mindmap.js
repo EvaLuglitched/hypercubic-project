@@ -87,6 +87,13 @@ export function edgesFor(twin, nodes) {
 
 const STATUS_TEXT = { complete: 'Validated', missing: 'Missing information', conflict: 'Two sources disagree' };
 
+// True when a label's box comes within `pad` pixels of a circle.
+function boxHitsCircle(b, c, pad) {
+  const x = Math.max(b.x, Math.min(c.x, b.x + b.w));
+  const y = Math.max(b.y, Math.min(c.y, b.y + b.h));
+  return Math.hypot(c.x - x, c.y - y) < c.r + pad;
+}
+
 export class MindMap {
   constructor(host, { twin, rightInset = 360, bottomInset = 90, onOpen = () => {}, onView = () => {}, onSelect = () => {} }) {
     this.host = host;
@@ -105,13 +112,15 @@ export class MindMap {
     this.render();
     this.bind();
     this.fit(false);
+    // Label sizes change once the web fonts arrive.
+    document.fonts?.ready.then(() => this.place());
   }
 
   render() {
     const sectionTitle = (id) => (this.twin.sections.find((s) => s.id === id) || {}).title || '';
     const lines = this.edges.map((e) => `<line x1="${e.a.x.toFixed(1)}" y1="${e.a.y.toFixed(1)}" x2="${e.b.x.toFixed(1)}" y2="${e.b.y.toFixed(1)}" class="is-${e.type}"></line>`).join('');
     const nodes = this.nodes.map((n) => {
-      const style = `left:${(n.x - n.r).toFixed(1)}px;top:${(n.y - n.r).toFixed(1)}px;width:${n.r * 2}px;height:${n.r * 2}px`;
+      const style = `left:${(n.x - n.r).toFixed(1)}px;top:${(n.y - n.r).toFixed(1)}px;width:${n.r * 2}px;height:${n.r * 2}px;--node-r:${n.r}`;
       if (n.kind === 'root') {
         return `<button type="button" class="mm-node is-root" data-id="root" style="${style}" aria-label="${esc(n.label)}: your digital twin"><span class="mm-label">${esc(n.label)}</span></button>`;
       }
@@ -124,20 +133,24 @@ export class MindMap {
       const cls = p.status === 'complete' ? 'is-done' : `is-gap${p.status === 'conflict' ? ' is-conflict' : ''}`;
       return `<button type="button" class="mm-node ${cls}" data-id="${esc(p.id)}" style="${style}" aria-label="${esc(p.title)}. ${STATUS_TEXT[p.status]}. Section ${esc(sectionTitle(p.section))}."><span class="mm-label">${esc(p.title)}</span>${p.status === 'conflict' ? '<span class="mm-badge" aria-hidden="true">!</span>' : ''}</button>`;
     }).join('');
-    const labels = this.nodes.filter((n) => n.kind !== 'point')
+    // Section labels first, so they get the best spots; the twin's name is also in the panel.
+    const labels = [...this.nodes.filter((n) => n.kind === 'hub'), this.byId.get('root')]
       .map((n) => `<span class="mm-hub-label${n.kind === 'root' ? ' is-root-label' : ''}" data-for="${esc(n.id)}">${esc(n.label)}</span>`).join('');
     this.host.innerHTML = `
       <div class="mm-viewport" id="mm-viewport" tabindex="0" role="group" aria-roledescription="mind map"
         aria-label="Mind map of ${esc(this.twin.name)}. Drag to move around. Use plus and minus to zoom, 0 to fit, arrow keys to move. Tab moves between circles.">
         <div class="mm-world">
           <svg class="mm-links" width="1" height="1" aria-hidden="true" focusable="false">${lines}</svg>
-          ${nodes}
         </div>
         <div class="mm-hub-labels" aria-hidden="true">${labels}</div>
+        <div class="mm-world">${nodes}</div>
       </div>
       <div class="mm-pop" role="dialog" aria-label="Knowledge point details" hidden></div>`;
     this.viewport = this.host.querySelector('.mm-viewport');
-    this.world = this.host.querySelector('.mm-world');
+    // Two layers move together: the lines below the section labels, and the circles above them,
+    // so a label never covers a point.
+    this.worlds = Array.from(this.host.querySelectorAll('.mm-world'));
+    this.world = this.worlds[1];
     this.labelLayer = this.host.querySelector('.mm-hub-labels');
     this.pop = this.host.querySelector('.mm-pop');
   }
@@ -248,12 +261,16 @@ export class MindMap {
   setView(v, animate) {
     this.view = { x: v.x, y: v.y, k: Math.min(MAX_K, Math.max(MIN_K, v.k)) };
     const smooth = animate && !reducedMotion();
-    this.world.classList.toggle('is-animating', Boolean(smooth));
-    this.world.style.transform = `translate(${this.view.x}px, ${this.view.y}px) scale(${this.view.k})`;
+    for (const world of this.worlds) {
+      world.classList.toggle('is-animating', Boolean(smooth));
+      world.style.transform = `translate(${this.view.x}px, ${this.view.y}px) scale(${this.view.k})`;
+      // The zoom level, for the styles that keep outlines crisp when zoomed out.
+      world.style.setProperty('--k', this.view.k.toFixed(4));
+    }
     this.viewport.classList.toggle('is-overview', this.view.k < LABEL_K);
     if (smooth) {
       clearTimeout(this.animTimer);
-      this.animTimer = setTimeout(() => { this.world.classList.remove('is-animating'); this.place(); }, 470);
+      this.animTimer = setTimeout(() => { this.worlds.forEach((w) => w.classList.remove('is-animating')); this.place(); }, 470);
     }
     this.place();
     this.onView(this.view);
@@ -309,16 +326,49 @@ export class MindMap {
   }
 
   // Keeps the section labels (shown when zoomed out) and the popover in place.
+  // Each label goes in the clearest of 48 spots around its circle (covering another label is worse than
+  // sitting under a point). A section's label leans towards the centre, where its points aren't; the twin's
+  // name prefers the spot below the centre circle.
   place() {
     const overview = this.view.k < LABEL_K;
-    for (const el of this.labelLayer.children) {
-      const n = this.byId.get(el.dataset.for);
-      if (!n) continue;
-      el.hidden = !overview;
-      if (!overview) continue;
-      const s = this.screen(n);
-      el.style.left = `${s.x}px`;
-      el.style.top = `${s.y + s.r + 8}px`;
+    const els = Array.from(this.labelLayer.children);
+    for (const el of els) el.hidden = !overview;
+    if (overview) {
+      const circles = this.nodes.map((m) => ({ id: m.id, ...this.screen(m) }));
+      const root = circles.find((c) => c.id === 'root');
+      const pad = Math.max(4, 14 * this.view.k); // room for a point's dashed ring
+      const sizes = els.map((el) => ({ w: el.offsetWidth, h: el.offsetHeight })); // all at once: one layout
+      const taken = [];
+      els.forEach((el, li) => {
+        const s = circles.find((c) => c.id === el.dataset.for);
+        const { w, h } = sizes[li];
+        const prefer = s === root ? Math.PI / 2 : Math.atan2(root.y - s.y, root.x - s.x);
+        const clashes = (b) => circles.filter((c) => c !== s && boxHitsCircle(b, c, pad)).length
+          + 3 * taken.filter((t) => b.x < t.x + t.w && t.x < b.x + b.w && b.y < t.y + t.h && t.y < b.y + b.h).length;
+        const last = el.dataset.spot === undefined ? -1 : Number(el.dataset.spot);
+        let best = null;
+        for (let i = 0; i < 16; i++) {
+          const a = (i / 16) * Math.PI * 2;
+          const cos = Math.cos(a);
+          const sin = Math.sin(a);
+          const at = (d) => ({ x: s.x + cos * d - w / 2, y: s.y + sin * d - h / 2, w, h });
+          // Start where the box's edge in this direction clears the circle by 6px, then step out until no corner touches it.
+          let d = s.r + 6 + Math.min(w / 2 / Math.max(Math.abs(cos), 1e-6), h / 2 / Math.max(Math.abs(sin), 1e-6));
+          while (boxHitsCircle(at(d), s, 6)) d += 2;
+          for (let ring = 0; ring < 3; ring++) {
+            const j = ring * 16 + i;
+            const b = at(d + ring * 18);
+            const c = clashes(b);
+            // Clear spots first, then the one nearest the preferred direction. A label stays put while its spot is clear.
+            const score = c * 10 + Math.abs(Math.atan2(Math.sin(a - prefer), Math.cos(a - prefer))) + ring * 0.5 - (j === last && !c ? 1 : 0);
+            if (!best || score < best.score) best = { j, b, score };
+          }
+        }
+        el.dataset.spot = best.j;
+        el.style.left = `${best.b.x}px`;
+        el.style.top = `${best.b.y}px`;
+        taken.push(best.b);
+      });
     }
     if (this.selected && !this.pop.hidden) this.placePop();
   }
