@@ -4,6 +4,8 @@ Clickable website prototype for our class project: a retiring expert builds a di
 
 ## Website
 
+Live: https://evaluglitched.github.io/hypercubic-project/ — see [PROTOTYPE_NOTES.md](PROTOTYPE_NOTES.md) for what's done and what still needs changes.
+
 The site lives in [`docs/`](docs/) — plain HTML, CSS and JavaScript, no build step.
 
 - `docs/index.html` — page shell
@@ -22,5 +24,8 @@ python3 -m http.server 4173 --directory docs
 Then open http://localhost:4173.
 
 ## Other files
+
+- `research/project-overview.md` — how Hypercubic works and our project brief
+
 
 Put flows, Figma exports and research in their own folders at the top level (for example `flows/`, `prototype/`).
