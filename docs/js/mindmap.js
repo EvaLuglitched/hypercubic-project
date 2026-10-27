@@ -420,25 +420,37 @@ export class MindMap {
   }
 }
 
-// A small static picture of a twin's map for the dashboard cards.
+// A small static picture of a twin's whole map for the dashboard cards, drawn in a 300 × 150 frame
+// (the card's 2:1 snapshot area). The map's wide side may stretch up to 1.5 times so it fills the
+// frame, and the dots keep one size in every twin, so a big map and a small one read the same.
+const THUMB_W = 300;
+const THUMB_H = 150;
+
 export function thumbnailSVG(twin) {
   if (!twin.points.length) {
-    return `<svg viewBox="0 0 320 180" aria-hidden="true" focusable="false"><circle cx="160" cy="90" r="34" fill="none" stroke="#8d8d8d" stroke-width="1.5" stroke-dasharray="5 5"></circle><text x="160" y="150" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#6b6b6b">No map yet</text></svg>`;
+    return `<svg viewBox="0 0 ${THUMB_W} ${THUMB_H}" aria-hidden="true" focusable="false"><circle cx="150" cy="62" r="26" fill="none" stroke="#8d8d8d" stroke-width="1.5" stroke-dasharray="5 5"></circle><text x="150" y="116" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#6b6b6b">No map yet</text></svg>`;
   }
   const nodes = layoutKnowledge(twin);
   const edges = edgesFor(twin, nodes);
-  let minX = Infinity; let minY = Infinity; let maxX = -Infinity; let maxY = -Infinity;
-  for (const n of nodes) { minX = Math.min(minX, n.x - n.r); minY = Math.min(minY, n.y - n.r); maxX = Math.max(maxX, n.x + n.r); maxY = Math.max(maxY, n.y + n.r); }
-  const pad = 80;
-  const vb = `${(minX - pad).toFixed(0)} ${(minY - pad).toFixed(0)} ${(maxX - minX + pad * 2).toFixed(0)} ${(maxY - minY + pad * 2).toFixed(0)}`;
-  const lines = edges.map((e) => `<line x1="${e.a.x.toFixed(0)}" y1="${e.a.y.toFixed(0)}" x2="${e.b.x.toFixed(0)}" y2="${e.b.y.toFixed(0)}" stroke="#141414" stroke-opacity="${e.type === 'cross' ? 0.2 : 0.45}" stroke-width="6"></line>`).join('');
+  const xs = nodes.map((n) => n.x);
+  const ys = nodes.map((n) => n.y);
+  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const fitX = (THUMB_W - 36) / Math.max(1, maxX - minX);
+  const fitY = (THUMB_H - 28) / Math.max(1, maxY - minY);
+  const even = Math.min(fitX, fitY);
+  const sx = Math.min(fitX, even * 1.5);
+  const sy = Math.min(fitY, even * 1.5);
+  const X = (x) => (THUMB_W / 2 + (x - (minX + maxX) / 2) * sx).toFixed(1);
+  const Y = (y) => (THUMB_H / 2 + (y - (minY + maxY) / 2) * sy).toFixed(1);
+  const lines = edges.map((e) => `<line x1="${X(e.a.x)}" y1="${Y(e.a.y)}" x2="${X(e.b.x)}" y2="${Y(e.b.y)}" stroke="#141414" stroke-opacity="${e.type === 'cross' ? 0.22 : 0.5}" stroke-width="0.8"></line>`).join('');
   const dots = nodes.map((n) => {
-    const r = n.kind === 'point' ? n.r * 0.55 : n.r * 0.6;
-    if (n.kind === 'point' && n.point.status !== 'complete') {
-      return `<circle cx="${n.x.toFixed(0)}" cy="${n.y.toFixed(0)}" r="${r.toFixed(0)}" fill="#fff" stroke="#141414" stroke-width="8"></circle><circle cx="${n.x.toFixed(0)}" cy="${n.y.toFixed(0)}" r="${(r + 18).toFixed(0)}" fill="none" stroke="#141414" stroke-width="5" stroke-dasharray="12 12"></circle>`;
+    const at = `cx="${X(n.x)}" cy="${Y(n.y)}"`;
+    if (n.kind === 'root') return `<circle ${at} r="5.5" fill="#fff" stroke="#141414" stroke-width="1.5"></circle>`;
+    if (n.kind === 'hub') return `<circle ${at} r="5" fill="#141414"></circle>`;
+    if (n.point.status !== 'complete') {
+      return `<circle ${at} r="3.2" fill="#fff" stroke="#141414" stroke-width="1.2"></circle><circle ${at} r="5.4" fill="none" stroke="#141414" stroke-width="0.8" stroke-dasharray="1.6 1.4"></circle>`;
     }
-    if (n.kind === 'root') return `<circle cx="0" cy="0" r="${r.toFixed(0)}" fill="#fff" stroke="#141414" stroke-width="10"></circle>`;
-    return `<circle cx="${n.x.toFixed(0)}" cy="${n.y.toFixed(0)}" r="${r.toFixed(0)}" fill="#141414"></circle>`;
+    return `<circle ${at} r="3.5" fill="#141414"></circle>`;
   }).join('');
-  return `<svg viewBox="${vb}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">${lines}${dots}</svg>`;
+  return `<svg viewBox="0 0 ${THUMB_W} ${THUMB_H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">${lines}${dots}</svg>`;
 }

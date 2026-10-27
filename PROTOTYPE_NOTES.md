@@ -6,8 +6,8 @@ Rebuilt from scratch on Oct 26 from the User Flow board, the Figma key frames (P
 
 1. **Sign up** (with consent) → **About you** (your field, job title, company, years, what you know best). Or **Log in**, or **Use a demo account** (choose a field first).
 2. **Dashboard** (one level above the mind map, like Photoshop's home screen). The left panel has Home, Account, Settings and Help.
-   - **Home:** royalty totals and every twin, plus a box with a **+** to create a new one.
-   - **Account:** profile, royalties, payouts and monthly statements.
+   - **Home:** every twin as a card (a snapshot of its mind map, status, sources and progress), three to a row, with search. A box with a **+** creates a new one.
+   - **Account:** royalty totals at the top, then profile, how royalties work, payouts and monthly statements.
    - **Settings:** text size, contrast, motion, replay the tour, reset demo data.
    - **Help:** steps, map controls, FAQ.
 3. **P1 Upload:** "Upload All Relevant Documents", Upload files / drag and drop, or **Use Demo Files**. Before any demo files load, a pop-up asks **which demo to explore**: Digital Product Design or Mainframe Engineering. It preselects the field from About you, and **Change** swaps the files.

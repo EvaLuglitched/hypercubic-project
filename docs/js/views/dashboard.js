@@ -1,6 +1,6 @@
 // The dashboard: one level above the mind map, like Photoshop's home screen.
 // Home lists every digital twin (plus a "+" box to create one), Account holds the profile and royalties.
-import { esc, icon, logoMark, PRODUCT, dialog, go, toast, money, timeAgo, greeting, firstName, initials, monthLabel, focusHeading } from '../ui.js';
+import { esc, icon, logoMark, PRODUCT, dialog, go, toast, money, timeAgo, greeting, firstName, initials, monthLabel, focusHeading, reducedMotion } from '../ui.js';
 import { store, createTwin, deleteTwin, updateTwin, progress, logOut, applySettings, twinHome } from '../store.js';
 import { thumbnailSVG } from '../mindmap.js';
 import { categoryById } from '../demo.js';
@@ -51,23 +51,27 @@ function royaltyTotals(twins) {
   return { month, total, answers, published: twins.filter((t) => t.status === 'published').length };
 }
 
+// Search ignores case and accents, so "cafe" finds "Café Counter App".
+const fold = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+// A snapshot of the twin's mind map on top, its details in the white frame below.
+// The "…" menu sits on the snapshot, so it never covers the text.
 function twinCard(t) {
   const pr = progress(t);
-  let meta;
-  if (t.status === 'published') meta = `${t.usage.answers} answers · ${money(t.usage.earned)} in royalties`;
-  else if (t.status === 'draft' || !t.points.length) meta = 'No documents yet';
-  else if (t.status === 'ready') meta = `Validated · ${t.validation ? t.validation.overall + '% match' : 'ready'}`;
-  else meta = `${pr.done} of ${pr.total} knowledge points validated`;
+  const sources = t.files.length;
+  const draft = t.status === 'draft' || !t.points.length;
   return `
-    <article class="twin-card">
+    <article class="twin-card" data-name="${esc(fold(t.name))}">
       <a class="twin-card-link" href="${twinHome(t)}">
         <div class="twin-thumb">${thumbnailSVG(t)}</div>
         <div class="twin-card-body">
-          <h3 class="twin-name">${esc(t.name)}</h3>
-          <p><span class="status-pill status-${t.status}">${STATUS[t.status]}</span></p>
-          <p class="tiny mono">${esc(meta)}</p>
-          ${t.status === 'building' ? `<div class="progress progress-sm" aria-hidden="true"><span style="width:${pr.pct}%"></span></div>` : ''}
-          <p class="tiny muted">Edited ${timeAgo(t.updatedAt)}</p>
+          <div class="twin-card-top">
+            <h3 class="twin-name">${esc(t.name)}</h3>
+            <span class="status-pill status-${t.status}">${STATUS[t.status]}</span>
+          </div>
+          <p class="twin-meta">${sources} ${sources === 1 ? 'source' : 'sources'} · ${draft ? 'Created' : 'Edited'} ${timeAgo(draft ? t.createdAt : t.updatedAt)}</p>
+          <div class="twin-progress"><span>Progress</span><span class="mono">${pr.pct}%</span></div>
+          <div class="progress progress-sm" role="progressbar" aria-label="${pr.done} of ${pr.total} knowledge points validated" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pr.pct}"><span style="width:${pr.pct}%"></span></div>
         </div>
       </a>
       <button type="button" class="icon-btn icon-btn-sm twin-menu" data-menu="${esc(t.id)}" aria-label="More options for ${esc(t.name)}">${icon('more', { size: 18 })}</button>
@@ -119,36 +123,41 @@ export function home(root) {
   const render = () => {
     const s = store.get();
     const twins = s.twins;
-    const r = royaltyTotals(twins);
     root.innerHTML = shell('home', `
-      <header class="page-head">
-        <p class="eyebrow">${greeting()}, ${esc(firstName(s.user))}</p>
-        <h1 class="display">Your digital twins</h1>
-      </header>
-      <section class="stat-row" aria-label="Royalties">
-        <div class="stat"><span class="stat-label">Royalties this month</span><span class="stat-value">${money(r.month)}</span></div>
-        <div class="stat"><span class="stat-label">All-time royalties</span><span class="stat-value">${money(r.total)}</span></div>
-        <div class="stat"><span class="stat-label">Answers from your twins</span><span class="stat-value">${r.answers}</span></div>
-        <a class="stat stat-link" href="#/account?section=royalties">
-          <span class="stat-label">${r.published ? `${r.published} published ${r.published === 1 ? 'twin earns' : 'twins earn'} royalties` : 'Publish a twin to start earning'}</span>
-          <span class="stat-cta">How royalties work ${icon('arrowRight', { size: 18 })}</span>
-        </a>
-      </section>
-      <section aria-labelledby="twins-h">
-        <div class="section-head"><h2 id="twins-h" class="section-title">All twins</h2><span class="tiny muted mono">${twins.length} ${twins.length === 1 ? 'twin' : 'twins'}</span></div>
-        <div class="twin-grid">
-          <button type="button" class="twin-card create-card" data-create>
-            <span class="create-plus" aria-hidden="true">${icon('plus', { size: 32 })}</span>
-            <span class="create-label">New digital twin</span>
-            <span class="tiny muted">Start by uploading documents</span>
-          </button>
-          ${twins.map(twinCard).join('')}
-          ${twins.length ? '' : `<div class="hint-card"><p class="hint-title">Start here</p><p>Create your first twin. You’ll upload documents about a product, system or process you know well, and the AI turns them into a mind map of your knowledge. Then you fill the gaps only you can fill.</p><p class="muted">No documents at hand? Choose <strong>Use Demo Files</strong> on the next screen.</p></div>`}
+      <header class="page-head page-head-row">
+        <div class="page-head-text">
+          <p class="eyebrow">${greeting()}, ${esc(firstName(s.user))}</p>
+          <h1 class="display">Your digital twins</h1>
+          <p class="page-sub">Pick a twin to keep building, or start a new one.</p>
         </div>
+        ${twins.length ? `<div class="search-field">${icon('search', { size: 18 })}<label for="twin-search" class="sr-only">Search twins</label><input type="search" class="search-input" id="twin-search" placeholder="Search twins" autocomplete="off"></div>` : ''}
+      </header>
+      <section class="twin-grid" aria-label="Your twins">
+        <button type="button" class="twin-card create-card" data-create>
+          <span class="create-plus" aria-hidden="true">${icon('plus', { size: 28 })}</span>
+          <span class="create-label">New digital twin</span>
+          <span class="tiny muted mono">Start by uploading documents</span>
+        </button>
+        ${twins.map(twinCard).join('')}
+        ${twins.length ? '<p class="no-match muted" id="no-match" role="status" hidden></p>' : `<div class="hint-card"><p class="hint-title">Start here</p><p>Create your first twin. You’ll upload documents about a product, system or process you know well, and the AI turns them into a mind map of your knowledge. Then you fill the gaps only you can fill.</p><p class="muted">No documents at hand? Choose <strong>Use Demo Files</strong> on the next screen.</p></div>`}
       </section>`);
     bindShell(root);
     root.querySelector('[data-create]').addEventListener('click', createFlow);
     root.querySelectorAll('[data-menu]').forEach((b) => b.addEventListener('click', () => twinMenu(b.dataset.menu, render)));
+    const search = root.querySelector('#twin-search');
+    if (search) {
+      search.addEventListener('input', () => {
+        const q = fold(search.value.trim());
+        let shown = 0;
+        root.querySelectorAll('.twin-card[data-name]').forEach((card) => {
+          card.hidden = Boolean(q) && !card.dataset.name.includes(q);
+          if (!card.hidden) shown += 1;
+        });
+        const none = root.querySelector('#no-match');
+        none.hidden = shown > 0;
+        none.textContent = shown ? '' : `No twins match “${search.value.trim()}”.`;
+      });
+    }
   };
   render();
 }
@@ -165,11 +174,22 @@ export function account(root, { query }) {
   const rate = (t) => (t.terms ? (t.terms.model === 'license' ? '20% of license fees' : `${money(t.terms.rate)} per answer`) : '—');
   const access = { team: 'My team', company: 'My company', partners: 'Licensed partners' };
 
+  const nextPayout = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
   root.innerHTML = shell('account', `
     <header class="page-head">
       <p class="eyebrow">Account</p>
       <h1 class="display">${esc(u.name)}</h1>
     </header>
+    <section class="stat-row account-stats" aria-label="Royalties">
+      <div class="stat"><span class="stat-label">Royalties this month</span><span class="stat-value">${money(r.month)}</span></div>
+      <div class="stat"><span class="stat-label">All-time royalties</span><span class="stat-value">${money(r.total)}</span></div>
+      <div class="stat"><span class="stat-label">Answers from your twins</span><span class="stat-value">${r.answers}</span></div>
+      <button type="button" class="stat stat-link" data-jump>
+        <span class="stat-label">${r.published ? `${r.published} published ${r.published === 1 ? 'twin earns' : 'twins earn'} royalties` : 'Publish a twin to start earning'}</span>
+        <span class="stat-cta">How royalties work ${icon('arrowRight', { size: 18 })}</span>
+      </button>
+    </section>
     <section class="panel" aria-labelledby="profile-h">
       <div class="panel-head"><h2 id="profile-h">Profile</h2></div>
       <form id="profile-form" novalidate>
@@ -184,12 +204,7 @@ export function account(root, { query }) {
       </form>
     </section>
     <section class="panel" id="royalties" aria-labelledby="royalties-h">
-      <div class="panel-head"><h2 id="royalties-h">Royalties and payouts</h2></div>
-      <div class="stat-row" style="margin-bottom:1.5rem">
-        <div class="stat"><span class="stat-label">This month</span><span class="stat-value">${money(r.month)}</span></div>
-        <div class="stat"><span class="stat-label">All time</span><span class="stat-value">${money(r.total)}</span></div>
-        <div class="stat"><span class="stat-label">Next payout</span><span class="stat-value" style="font-size:1.5rem">${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</span></div>
-      </div>
+      <div class="panel-head"><h2 id="royalties-h" tabindex="-1">Royalties and payouts</h2></div>
       <h3 style="font-weight:600;margin-bottom:.5rem">How royalties work</h3>
       <p class="muted" style="max-width:46rem;margin-bottom:1.25rem">Every time someone gets an answer from one of your published twins, you earn a royalty. You choose the rate for each twin when you set its terms. Royalties keep coming after you retire, for as long as people use your twin, and you can withdraw a twin at any time.</p>
       ${published.length ? `
@@ -198,7 +213,7 @@ export function account(root, { query }) {
           <tbody>${published.map((t) => `<tr><td><a href="#/twin/${t.id}/published">${esc(t.name)}</a></td><td>${access[t.terms?.access] || '—'}</td><td>${rate(t)}</td><td>${t.usage.answers}</td><td>${money(t.usage.earned)}</td></tr>`).join('')}</tbody>
         </table></div>` : '<p class="hint-card" style="display:block">You don’t have a published twin yet. Royalties start when you publish one.</p>'}
       <div class="setting-row" style="margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1.25rem">
-        <div class="setting-text"><strong>Payout method</strong><span class="muted">Not set up. Payouts are sent on the 1st of each month.</span></div>
+        <div class="setting-text"><strong>Payout method</strong><span class="muted">Not set up. Payouts are sent on the 1st of each month. Next payout: ${nextPayout}.</span></div>
         <button type="button" class="btn" data-payout>Set up payouts</button>
       </div>
       ${statements.length ? `
@@ -225,10 +240,13 @@ export function account(root, { query }) {
     body: '<p>In the real product, you’d connect a bank account here to receive your royalties.</p><p class="muted">This is a prototype, so it doesn’t collect any payment details.</p>',
     actions: [{ label: 'OK', value: true, primary: true }],
   }));
-  if (query.section === 'royalties') {
-    const el = root.querySelector('#royalties');
-    el.scrollIntoView({ block: 'start' });
-  }
+  // "How royalties work" (and the #/account?section=royalties link) jump to the royalties panel.
+  const showRoyalties = (smooth) => {
+    root.querySelector('#royalties').scrollIntoView({ block: 'start', behavior: smooth && !reducedMotion() ? 'smooth' : 'auto' });
+    root.querySelector('#royalties-h').focus({ preventScroll: true });
+  };
+  root.querySelector('[data-jump]').addEventListener('click', () => showRoyalties(true));
+  if (query.section === 'royalties') showRoyalties(false);
 }
 
 export function settings(root) {
