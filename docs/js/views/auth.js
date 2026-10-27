@@ -1,8 +1,11 @@
 // Sign up, log in and "About you" (Account creation → Enter personal info → Profile created).
 import { esc, logoMark, PRODUCT, dialog, go, toast, firstName, focusHeading } from '../ui.js';
 import { store, createAccount, logIn, logInDemo } from '../store.js';
+import { CATEGORIES, categoryById } from '../demo.js';
+import { chooseCategory } from './demo-picker.js';
 
-const SKILLS = ['COBOL', 'JCL', 'DB2', 'CICS', 'IMS', 'VSAM', 'Assembler', 'REXX', 'PL/I'];
+// "Your field" on About you: the demo categories, plus a way out.
+const FIELDS = [...CATEGORIES.map((c) => ({ id: c.id, label: c.label })), { id: 'other', label: 'Something else' }];
 
 function graphArt() {
   // Decorative: a few dots like the zoomed-out mind map.
@@ -23,7 +26,7 @@ function shell(inner) {
       <div class="auth-logo">${logoMark(26)}<span>${PRODUCT}</span></div>
       <div class="auth-copy">
         <p class="display auth-display">Your knowledge keeps working.</p>
-        <p class="auth-lead">Build a digital twin of what you know about your systems. New engineers get answers in your words, and you keep the credit and the royalties.</p>
+        <p class="auth-lead">Build a digital twin of what you know about your work. The people who come after you get answers in your words, and you keep the credit and the royalties.</p>
       </div>
       ${graphArt()}
       <p class="tiny muted">Prototype for usability testing. <button type="button" class="link-btn" data-reset>Reset demo data</button></p>
@@ -121,8 +124,8 @@ export function login(root) {
         <button class="btn btn-primary btn-lg btn-block" type="submit">Log in</button>
       </form>
       <div class="divider"><span>or</span></div>
-      <button type="button" class="btn btn-lg btn-block" data-demo>Use the demo account</button>
-      <p class="hint" style="margin-top:.625rem">Robert is a mainframe engineer with one twin in progress and one already published.</p>
+      <button type="button" class="btn btn-lg btn-block" data-demo>Use a demo account</button>
+      <p class="hint" style="margin-top:.625rem">Choose a field. Each demo account has one twin in progress and one already published.</p>
     </div>`);
   bindReset(root);
   bindPasswordToggle(root);
@@ -138,9 +141,19 @@ export function login(root) {
       showError(form, 'We couldn’t find an account for that email in this browser. Create an account, or use the demo account.', [email]);
     }
   });
-  root.querySelector('[data-demo]').addEventListener('click', () => {
-    logInDemo();
-    toast('Logged in as Robert, the demo user.');
+  root.querySelector('[data-demo]').addEventListener('click', async () => {
+    const id = await chooseCategory({
+      title: 'Choose a demo account',
+      intro: 'Each demo account belongs to a made-up expert, with one twin in progress and one already published.',
+      confirmLabel: 'Log in',
+      describe: (c) => {
+        const u = c.account.user;
+        return { text: `${u.name}, ${u.role.toLowerCase()} at ${u.company}.`, meta: `${c.twinName} · ${c.account.published.name}` };
+      },
+    });
+    if (!id) return;
+    logInDemo(id);
+    toast(`Logged in as ${firstName(store.get().user)}, the demo user.`);
     go('home');
   });
   form.querySelector('#li-email').focus();
@@ -148,6 +161,8 @@ export function login(root) {
 
 export function about(root) {
   const user = store.get().user;
+  // Profiles saved before "Your field" existed: work the field out from the skills.
+  let field = user.field || CATEGORIES.find((c) => (user.skills || []).some((s) => c.skills.includes(s)))?.id || '';
   const picked = new Set(user.skills || []);
   root.innerHTML = shell(`
     <div class="auth-box">
@@ -155,29 +170,53 @@ export function about(root) {
       <h1 class="auth-title">Tell us about your work</h1>
       <p class="muted">Your twin uses this to introduce you to the people who ask it questions.</p>
       <form id="about-form" novalidate>
-        <div class="field"><label for="ab-role">Job title</label><input class="input" id="ab-role" placeholder="For example: Senior mainframe engineer" value="${esc(user.role)}"></div>
+        <fieldset class="field" style="border:0;padding:0;margin:0 0 1.5rem">
+          <legend class="field-label" style="margin-bottom:.5rem">Your field</legend>
+          <div class="chips" role="group" aria-label="Your field">${FIELDS.map((f) => `<button type="button" class="chip" aria-pressed="false" data-field="${esc(f.id)}">${esc(f.label)}</button>`).join('')}</div>
+        </fieldset>
+        <div class="field"><label for="ab-role">Job title</label><input class="input" id="ab-role" value="${esc(user.role)}"></div>
         <div class="field"><label for="ab-company">Company</label><input class="input" id="ab-company" value="${esc(user.company)}"></div>
         <div class="field"><label for="ab-years">Years of experience</label><input class="input" id="ab-years" inputmode="numeric" value="${esc(user.years)}" style="max-width:10rem"></div>
-        <fieldset class="field" style="border:0;padding:0;margin:0 0 1.5rem">
-          <legend class="field-label" style="margin-bottom:.5rem">Systems you know <span class="muted">(choose any)</span></legend>
-          <div class="chips">${SKILLS.map((s) => `<button type="button" class="chip" aria-pressed="${picked.has(s)}" data-skill="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+        <fieldset class="field" id="skills" style="border:0;padding:0;margin:0 0 1.5rem">
+          <legend class="field-label" style="margin-bottom:.5rem">What you know best <span class="muted">(choose any)</span></legend>
+          <div class="chips" id="skill-chips"></div>
         </fieldset>
         <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to dashboard</button>
         <p style="text-align:center;margin-top:1rem"><button type="button" class="link-btn" data-skip>Skip for now</button></p>
       </form>
     </div>`);
   bindReset(root);
-  root.querySelectorAll('[data-skill]').forEach((chip) => chip.addEventListener('click', () => {
+  const form = root.querySelector('#about-form');
+  // The job title example and the skill chips follow the chosen field.
+  const drawField = () => {
+    const story = categoryById(field);
+    form.querySelectorAll('[data-field]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.field === field)));
+    form.querySelector('#ab-role').placeholder = `For example: ${story ? story.roleExample : 'Senior engineer'}`;
+    form.querySelector('#skills').hidden = !story;
+    form.querySelector('#skill-chips').innerHTML = story
+      ? story.skills.map((s) => `<button type="button" class="chip" aria-pressed="${picked.has(s)}" data-skill="${esc(s)}">${esc(s)}</button>`).join('')
+      : '';
+  };
+  drawField();
+  form.querySelectorAll('[data-field]').forEach((b) => b.addEventListener('click', () => {
+    field = b.dataset.field;
+    const story = categoryById(field);
+    for (const s of [...picked]) if (!story || !story.skills.includes(s)) picked.delete(s);
+    drawField();
+  }));
+  form.querySelector('#skill-chips').addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-skill]');
+    if (!chip) return;
     const on = chip.getAttribute('aria-pressed') !== 'true';
     chip.setAttribute('aria-pressed', String(on));
     if (on) picked.add(chip.dataset.skill); else picked.delete(chip.dataset.skill);
-  }));
-  const form = root.querySelector('#about-form');
+  });
   const save = () => {
     store.update((s) => {
       s.user.role = form.querySelector('#ab-role').value.trim();
       s.user.company = form.querySelector('#ab-company').value.trim();
       s.user.years = form.querySelector('#ab-years').value.trim();
+      s.user.field = field;
       s.user.skills = [...picked];
     });
   };

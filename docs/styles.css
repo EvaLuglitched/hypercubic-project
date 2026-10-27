@@ -142,6 +142,14 @@ code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); bor
 .radio-card:has(input:checked) { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .radio-card input { flex: none; width: 1.25rem; height: 1.25rem; margin: 0.125rem 0 0; accent-color: var(--ink); }
 .radio-card strong { display: block; font-weight: 600; }
+/* The demo category cards ("Which demo do you want to explore?") */
+.cat-card { align-items: center; padding: 1.125rem 1.25rem; transition: border-color 0.15s; }
+.cat-card:hover { border-color: var(--ink); }
+.cat-icon { flex: none; width: 3rem; height: 3rem; border-radius: var(--r-sm); border: 1px solid var(--line-strong); background: var(--paper); display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
+.cat-card:has(input:checked) .cat-icon { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.cat-text { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; color: var(--ink-2); }
+.cat-text strong { font-size: 1.125rem; color: var(--ink); }
+.cat-meta { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
 .range { width: 100%; accent-color: var(--ink); height: 2rem; }
 
 /* ---------- Generic pieces ---------- */
@@ -276,6 +284,10 @@ a.crumb:hover { background: var(--paper); }
 .dz-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.875rem; font-size: 1.0625rem; color: var(--ink-2); }
 .formats { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); letter-spacing: 0.02em; }
 .demo-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.125rem; }
+.demo-note { display: flex; align-items: center; gap: 0.875rem; margin-top: 1.125rem; padding: 0.75rem 1rem; border: 1px solid var(--line); border-radius: 0.75rem; }
+.demo-note-icon { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 0.625rem; background: var(--ink); color: var(--white); display: inline-flex; align-items: center; justify-content: center; }
+.demo-note-text { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+.demo-note + .file-list { margin-top: 0.5rem; }
 .file-list { list-style: none; display: flex; flex-direction: column; margin-top: 1.125rem; }
 .file-list:empty { display: none; }
 .file-row { display: flex; align-items: center; gap: 0.875rem; padding: 0.75rem 0.25rem; border-top: 1px solid var(--line); }
@@ -564,4 +576,9 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
   .point-top { flex-wrap: wrap; padding: 0.75rem 1rem; }
   .agent-step { grid-template-columns: 1.5rem 1fr; }
   .step-agent { display: none; }
+}
+@media (max-width: 560px) {
+  .dialog { padding: 1.375rem; }
+  .cat-card { padding: 1rem; }
+  .cat-icon { display: none; }
 }

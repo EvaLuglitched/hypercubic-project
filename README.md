@@ -11,11 +11,12 @@ The site lives in [`docs/`](docs/): plain HTML, CSS and JavaScript modules, no b
 - `docs/index.html` — page shell
 - `docs/styles.css` — design tokens and styles (IBM Plex Sans / Mono, #F4F4F4, #E0E0E0, #141414, #FFFFFF)
 - `docs/js/app.js` — router: which URL shows which screen
-- `docs/js/views/` — one file per screen group: `auth` (sign up, log in, about you), `dashboard` (Home, Account, Settings, Help), `upload` (P1), `thinking`, `map` (P2–P4), `point` (knowledge point chat), `finish` (create twin → final validation → terms and royalties → publish)
+- `docs/js/views/` — one file per screen group: `auth` (sign up, log in, about you), `dashboard` (Home, Account, Settings, Help), `upload` (P1), `demo-picker` (the "Which demo do you want to explore?" dialog), `thinking`, `map` (P2–P4), `point` (knowledge point chat), `finish` (create twin → final validation → terms and royalties → publish)
 - `docs/js/mindmap.js` — the zoomable mind map canvas
 - `docs/js/tour.js` — first-time tutorial
 - `docs/js/agent.js` — the simulated AI agents (where a real API would plug in)
-- `docs/js/demo.js` — demo content: demo files, knowledge points, test questions. Edit this to change the story.
+- `docs/js/demo.js` — the list of demo categories, and the demo accounts
+- `docs/js/demo/` — one file per demo story: `design.js` (Digital Product Design) and `mainframe.js` (Mainframe Engineering). Each holds the demo files, knowledge points, test questions and demo account. Edit these to change a story.
 - `docs/js/store.js` — saved state (in the browser's localStorage)
 
 ### Run it locally

@@ -60,7 +60,7 @@ export function signedIn() {
 
 export function createAccount({ name, email }) {
   store.update((s) => {
-    s.user = { name, email, role: '', company: '', years: '', skills: [], tourSeen: false, isDemo: false, createdAt: Date.now() };
+    s.user = { name, email, role: '', company: '', years: '', field: '', skills: [], tourSeen: false, isDemo: false, createdAt: Date.now() };
     s.session = true;
     s.twins = [];
     s.tour = null;
@@ -74,8 +74,9 @@ export function logIn(email) {
   return Boolean(known);
 }
 
-export function logInDemo() {
-  const demo = demoAccount();
+// `categoryId` picks the demo account: one per demo category in demo.js.
+export function logInDemo(categoryId) {
+  const demo = demoAccount(categoryId);
   store.update((s) => {
     s.user = demo.user;
     s.twins = demo.twins;

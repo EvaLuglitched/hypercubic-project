@@ -364,6 +364,8 @@ export function render(root, { id, pid }) {
     if (!step || !step.startsWith('point') || destroyed) return;
     if (step === 'point-intro') {
       const first = thread.querySelector('.msg');
+      // Back to the start of the conversation, so the spotlight isn't cut off at the top.
+      scroller.scrollTo({ top: 0, behavior: 'instant' });
       tour.coach({
         target: first, step: 5, title: 'The agent explains what it found',
         html: '<p>It tells you what it learned from your documents, and which files it used.</p><p>Below that, it asks about the part that is missing or doesn’t match.</p>',
@@ -379,6 +381,8 @@ export function render(root, { id, pid }) {
         onNext: () => { tour.setStep('point-answer'); showTour(); },
       });
     } else if (step === 'point-answer') {
+      // The open question sits just above the reply box.
+      scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'instant' });
       tour.coach({
         target: '#composer-area', step: 7, title: 'Answer in your own words',
         html: '<p>Type your answer, talk with the microphone, or press <strong>…</strong> to upload a file or sketch with the pen.</p><p>To try it quickly, press <strong>Use example answer</strong>, then send it.</p>',

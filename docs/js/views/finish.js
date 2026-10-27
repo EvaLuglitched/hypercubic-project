@@ -2,8 +2,11 @@
 // → Digital twin complete (try it, set up terms and royalties, edit) → Release / publish → End.
 import { esc, icon, rich, logoMark, PRODUCT, dialog, go, toast, sleep, reducedMotion, money, firstName, focusHeading } from '../ui.js';
 import { store, getTwin, updateTwin, progress, uid } from '../store.js';
-import { testQuestionsFor, twinTestAnswer, similarity, askTwin } from '../agent.js';
-import { TRY_SUGGESTIONS } from '../demo.js';
+import { testQuestionsFor, twinTestAnswer, similarity, askTwin, trySuggestionsFor } from '../agent.js';
+import { categoryFor, categoryById } from '../demo.js';
+
+// Who asks the twin questions: "a new designer", "a new engineer"… from the demo story or the expert's field.
+const newcomer = (twin) => (categoryFor(twin) || categoryById(store.get().user?.field))?.newcomer || 'someone new';
 
 const crumb = (twin, label, href = `#/twin/${twin.id}/map`) =>
   `<a class="crumb" href="${href}">${logoMark()}<span>${PRODUCT}</span><span class="crumb-sep" aria-hidden="true">/</span><span>${esc(label)}</span></a>`;
@@ -184,7 +187,7 @@ export function ready(root, { id }) {
         <p class="lead">${v ? `In the final check, your twin’s answers were <strong>${v.overall}% similar</strong> to yours.` : 'Your twin has taken in everything you validated.'} Try it, decide who can use it, and publish it when you’re happy.</p>
       </header>
       <div class="option-grid">
-        <a class="option-card" href="#/twin/${id}/try"><span class="option-icon">${icon('chat')}</span><h3>Try your twin</h3><p class="muted">Ask it questions the way a new engineer would.</p></a>
+        <a class="option-card" href="#/twin/${id}/try"><span class="option-icon">${icon('chat')}</span><h3>Try your twin</h3><p class="muted">Ask it questions the way ${esc(newcomer(twin))} would.</p></a>
         <a class="option-card" href="#/twin/${id}/terms"><span class="option-icon">${icon('coin')}</span><h3>Terms and royalties</h3><p class="muted">Who can use it, and how you earn from it.</p>${termsDone ? `<span class="done-mark">${icon('check', { size: 14 })} Set up</span>` : '<span class="done-mark">Needed before you publish</span>'}</a>
         <a class="option-card" href="#/twin/${id}/map"><span class="option-icon">${icon('edit')}</span><h3>Edit knowledge</h3><p class="muted">Go back to the mind map to fix or add anything.</p></a>
       </div>
@@ -230,7 +233,7 @@ export function terms(root, { id }) {
         <section class="panel" aria-labelledby="who-h">
           <div class="panel-head"><h2 id="who-h">Who can use your twin</h2></div>
           <div class="radio-cards" role="radiogroup" aria-labelledby="who-h">
-            ${[['team', 'My team', 'The engineers you work with every day.'], ['company', 'My whole company', 'Anyone at your company can ask it.'], ['partners', 'Licensed partners', 'Other companies pay a license to use it. You earn more.']]
+            ${[['team', 'My team', 'The people you work with every day.'], ['company', 'My whole company', 'Anyone at your company can ask it.'], ['partners', 'Licensed partners', 'Other companies pay a license to use it. You earn more.']]
               .map(([v, l, d]) => `<label class="radio-card"><input type="radio" name="access" value="${v}" ${t.access === v ? 'checked' : ''}><span><strong>${l}</strong><span class="muted">${d}</span></span></label>`).join('')}
           </div>
         </section>
@@ -255,7 +258,7 @@ export function terms(root, { id }) {
           <div class="panel-head"><h2 id="credit-h">Credit and limits</h2></div>
           <label class="check"><input type="checkbox" id="credit" ${t.credit ? 'checked' : ''}><span><strong>Show my name on every answer.</strong> People see whose knowledge they’re using.</span></label>
           <label class="check"><input type="checkbox" id="escalate" ${t.escalate ? 'checked' : ''}><span><strong>Let people ask me directly</strong> when the twin doesn’t know.</span></label>
-          <div class="field"><label for="limits">Topics your twin should not answer <span class="muted">(optional)</span></label><textarea class="textarea" id="limits" rows="3" placeholder="For example: anything about salaries, or systems I didn’t work on">${esc(t.limits)}</textarea></div>
+          <div class="field"><label for="limits">Topics your twin should not answer <span class="muted">(optional)</span></label><textarea class="textarea" id="limits" rows="3" placeholder="For example: anything about salaries, or projects I didn’t work on">${esc(t.limits)}</textarea></div>
         </section>
         <section class="panel" aria-labelledby="consent-h">
           <div class="panel-head"><h2 id="consent-h">Your consent</h2></div>
@@ -333,9 +336,9 @@ export function tryTwin(root, { id }) {
         </div>
         <div class="composer-area">
           <div class="composer-inner">
-            <div class="suggest-row" id="suggest">${TRY_SUGGESTIONS.map((s) => `<button type="button" class="btn btn-sm" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+            <div class="suggest-row" id="suggest">${trySuggestionsFor(twin).map((s) => `<button type="button" class="btn btn-sm" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
             <div class="composer-row">
-              <form class="composer" id="composer"><label for="ask-twin" class="sr-only">Ask your twin</label><textarea id="ask-twin" rows="1" placeholder="Ask a question, like a new engineer would…"></textarea><button type="submit" class="icon-btn icon-btn-dark" aria-label="Send">${icon('send')}</button></form>
+              <form class="composer" id="composer"><label for="ask-twin" class="sr-only">Ask your twin</label><textarea id="ask-twin" rows="1" placeholder="Ask a question, like ${esc(newcomer(twin))} would…"></textarea><button type="submit" class="icon-btn icon-btn-dark" aria-label="Send">${icon('send')}</button></form>
             </div>
           </div>
         </div>

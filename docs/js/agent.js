@@ -5,17 +5,18 @@
 // for example, make respond() call your API with the knowledge point and the conversation so far, and map
 // the model's reply onto the same message shapes ({ role, heading, text, kind, ... }).
 
-import { DEMO_FILES, DEMO_SECTIONS, DEMO_POINTS, TEST_QUESTIONS, clonePoint } from './demo.js';
+import { CATEGORIES, categoryFor, clonePoint } from './demo.js';
 
 export const AGENT_MODE = 'mock';
 
-const DEMO_NAMES = new Set(DEMO_FILES.map((f) => f.name));
+const DEMO_NAMES = new Set(CATEGORIES.flatMap((c) => c.files.map((f) => f.name)));
 export const isDemoFile = (name) => DEMO_NAMES.has(name);
 
 const STOP = new Set('a an and are as at be but by can do does for from how i if in into is it its me my no not of on or our so that the their them then there these they this to up was we what when where which who why will with you your do i\'m im should could would about have has had just get got been any some more most very also than out over'.split(' '));
 
 export function tokenize(text) {
-  return String(text || '').toLowerCase().replace(/[^a-z0-9\-:.]+/g, ' ').split(/\s+/)
+  // Accents are dropped first, so “café” and “cafe” are the same word.
+  return String(text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9\-:.]+/g, ' ').split(/\s+/)
     .map((w) => w.replace(/^[.:-]+|[.:-]+$/g, ''))
     .filter((w) => w.length > 1 && !STOP.has(w));
 }
@@ -86,15 +87,14 @@ export function buildKnowledge(files, existing = { sections: [], points: [] }) {
   const points = existing.points.slice();
   const have = new Set(points.map((p) => p.id));
 
-  const demoNames = files.filter((f) => isDemoFile(f.name)).map((f) => f.name);
-  if (demoNames.length) {
-    for (const s of DEMO_SECTIONS) if (!sections.some((x) => x.id === s.id)) sections.push({ ...s });
-    for (const p of DEMO_POINTS) {
-      if (have.has(p.id)) continue;
-      if (p.sources.some((src) => demoNames.includes(src.file))) {
-        points.push(clonePoint(p));
-        have.add(p.id);
-      }
+  const demoNames = new Set(files.filter((f) => isDemoFile(f.name)).map((f) => f.name));
+  for (const c of CATEGORIES) {
+    if (!c.files.some((f) => demoNames.has(f.name))) continue;
+    for (const s of c.sections) if (!sections.some((x) => x.id === s.id)) sections.push({ ...s });
+    for (const p of c.points) {
+      if (have.has(p.id) || !p.sources.some((src) => demoNames.has(src.file))) continue;
+      points.push(clonePoint(p));
+      have.add(p.id);
     }
   }
   for (const file of files.filter((f) => !isDemoFile(f.name))) {
@@ -224,7 +224,8 @@ export function similarity(expert, reference, keywords = []) {
 
 export function testQuestionsFor(twin) {
   const ids = new Set(twin.points.map((p) => p.id));
-  const fromDemo = TEST_QUESTIONS.filter((q) => q.points.every((id) => ids.has(id)));
+  const story = categoryFor(twin);
+  const fromDemo = story ? story.tests.filter((q) => q.points.every((id) => ids.has(id))) : [];
   if (fromDemo.length) return fromDemo;
   // A twin built from the expert's own files: ask about its first few points.
   return twin.points.slice(0, 3).map((p, i) => ({
@@ -244,6 +245,14 @@ export function twinTestAnswer(twin, q, name) {
   if (!points.length) return { text: 'I don’t have this in my knowledge yet.', caveat: true, unsure: [] };
   if (unsure.length) return { text: fill(q.partial, name), caveat: true, unsure: unsure.map((p) => p) };
   return { text: fill(q.answer, name), caveat: false, unsure: [] };
+}
+
+// Example questions for "Try your twin": the published demo twins and the demo stories bring their own.
+export function trySuggestionsFor(twin) {
+  if (twin.suggestions) return twin.suggestions;
+  const story = categoryFor(twin);
+  if (story) return story.trySuggestions;
+  return twin.points.filter((p) => p.status === 'complete').slice(0, 3).map((p) => `What should I know about “${p.title}”?`);
 }
 
 // Answers a question in "Try your twin" from the twin's knowledge points, with citations.

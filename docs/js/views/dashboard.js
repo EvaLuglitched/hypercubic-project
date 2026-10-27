@@ -3,6 +3,7 @@
 import { esc, icon, logoMark, PRODUCT, dialog, go, toast, money, timeAgo, greeting, firstName, initials, monthLabel, focusHeading } from '../ui.js';
 import { store, createTwin, deleteTwin, updateTwin, progress, logOut, applySettings, twinHome } from '../store.js';
 import { thumbnailSVG } from '../mindmap.js';
+import { categoryById } from '../demo.js';
 
 const STATUS = { draft: 'Draft', building: 'Building', ready: 'Ready to publish', published: 'Published' };
 
@@ -74,11 +75,12 @@ function twinCard(t) {
 }
 
 async function createFlow() {
+  const example = categoryById(store.get().user.field)?.twinName || 'Claims Batch System';
   const name = await dialog({
     title: 'Name your digital twin',
     body: `<div class="field"><label for="twin-name">Twin name</label>
-      <input class="input" id="twin-name" maxlength="60" placeholder="For example: Claims Batch System">
-      <p class="hint">Name it after the system or area you know best. You can change it later.</p></div>`,
+      <input class="input" id="twin-name" maxlength="60" placeholder="For example: ${esc(example)}">
+      <p class="hint">Name it after the product, system or area you know best. You can change it later.</p></div>`,
     actions: [{ label: 'Cancel', value: null }, { label: 'Create twin', primary: true, getValue: (box) => box.querySelector('#twin-name').value.trim() || 'Untitled twin' }],
   });
   if (!name) return;
@@ -141,7 +143,7 @@ export function home(root) {
             <span class="tiny muted">Start by uploading documents</span>
           </button>
           ${twins.map(twinCard).join('')}
-          ${twins.length ? '' : `<div class="hint-card"><p class="hint-title">Start here</p><p>Create your first twin. You’ll upload documents about a system you know well, and the AI turns them into a mind map of your knowledge. Then you fill the gaps only you can fill.</p></div>`}
+          ${twins.length ? '' : `<div class="hint-card"><p class="hint-title">Start here</p><p>Create your first twin. You’ll upload documents about a product, system or process you know well, and the AI turns them into a mind map of your knowledge. Then you fill the gaps only you can fill.</p><p class="muted">No documents at hand? Choose <strong>Use Demo Files</strong> on the next screen.</p></div>`}
         </div>
       </section>`);
     bindShell(root);
@@ -288,7 +290,7 @@ export function help(root) {
       <div class="panel-head"><h2 id="start-h">Building a twin, step by step</h2></div>
       <ol class="steps-list">
         <li><span><strong>Create a twin.</strong> On Home, press the box with the plus sign and give it a name.</span></li>
-        <li><span><strong>Upload documents.</strong> Runbooks, code walkthroughs, notes, transcripts. Organized or not.</span></li>
+        <li><span><strong>Upload documents.</strong> Briefs, runbooks, research, specs, notes, transcripts. Organized or not. No files? Use the demo files and choose a field to explore.</span></li>
         <li><span><strong>Fill the gaps.</strong> The AI builds a mind map and lists tasks: things it couldn’t find or that don’t match. Answer them by typing, talking or sketching.</span></li>
         <li><span><strong>Validate.</strong> Check each summary. When it’s right, press Validate and the circle turns black.</span></li>
         <li><span><strong>Complete and test.</strong> Your twin answers test questions next to you, so you can see how closely it matches.</span></li>
@@ -310,6 +312,7 @@ export function help(root) {
     </section>
     <section class="panel faq" aria-labelledby="faq-h">
       <div class="panel-head"><h2 id="faq-h">Questions</h2></div>
+      <details><summary>What are the demo files?</summary><p>They let you try ${PRODUCT} without your own documents. On the upload screen, press Use Demo Files and choose a field: Digital Product Design (a café ordering app, from value proposition to launch) or Mainframe Engineering (a nightly COBOL claims system). You play that made-up expert and fill the gaps the AI finds.</p></details>
       <details><summary>Who can see my twin?</summary><p>Only you, until you publish it. When you publish, you choose who can use it: your team, your whole company, or licensed partners.</p></details>
       <details><summary>How do royalties work?</summary><p>Each time someone gets an answer from your published twin, you earn a royalty: either a fixed amount per answer, or a share of the license fee. Royalties continue after you retire, as long as the twin is in use.</p></details>
       <details><summary>What if the AI gets something wrong?</summary><p>Nothing goes into your twin until you validate it. If a summary is wrong, press Refine and tell the agent what to change. If your files disagree with you, you can override them.</p></details>
