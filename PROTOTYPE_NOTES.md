@@ -10,7 +10,7 @@ Rebuilt from scratch on Oct 26 from the User Flow board, the Figma key frames (P
    - **Account:** royalty totals at the top, then profile, how royalties work, payouts and monthly statements.
    - **Settings:** text size, contrast, motion, replay the tour, reset demo data.
    - **Help:** steps, map controls, FAQ.
-3. **P1 Upload:** "Upload All Relevant Documents", Upload files / drag and drop, or **Use Demo Files**. Before any demo files load, a pop-up asks **which demo to explore**: Digital Product Design or Mainframe Engineering. It preselects the field from About you, and **Change** swaps the files.
+3. **P1 Upload:** "Upload All Relevant Documents", Upload files / drag and drop, or **Use Demo Files**. Before any demo files load, a pop-up asks **which demo to explore**: Digital Product Design, Mainframe Engineering or AI Optimization Research. It preselects the field from About you, and **Change** swaps the files.
 4. **Thinking......:** the Knowledge agent reads each file, then the Validate agent runs the four checks from the flow.
 5. **Mind map** (P2 zoomed out, P3 zoomed in): a canvas you can pan and zoom. It opens zoomed out so the whole map fits.
    - Black circles are validated. A white circle with a dashed ring needs the expert, and a slow ripple draws the eye to it (it stops when Motion is set to reduced). A "!" means two files or two projects disagree.
@@ -22,27 +22,37 @@ Rebuilt from scratch on Oct 26 from the User Flow board, the Figma key frames (P
    - Sections: **Summary, Challenge, Why, How, Solution**, written in general terms, not about one project. Examples from each project are folded under the part they show, and figures (process steps, bar charts, a journey curve, a priority matrix, sizes at real scale, tables, file excerpts) sit between the text.
    - Where the files say nothing, or two projects or files differ, the agent leaves a **yellow note**. The expert answers under it and presses ✓; the agent checks it and adds it to the page. When two files disagree, it asks **Keep my answer** or **Edit my answer**. **Use example answer** fills in an answer for testing.
    - **Select any text → Comment.** A few words on a few words replace the selection ("should be 48 points"), a question becomes a new note to answer, and anything else is added to the paragraph. Commented words stay underlined; click them to see the comment and **Resolve** it.
-   - At the bottom: **Type** (edit the page in place), **Chat** and **Voice** (pop-up windows; what you say answers the open note, or goes where it fits), and **Pen** (sketch or highlight; the drawing goes into the page). **Validate** goes back to the mind map, focused on the point.
+   - A toolbar floats at the bottom, like Figma's: **Type** (edit the page in place), **Chat** and **Voice** (pop-up windows; what you say answers the open note, or goes where it fits) and **Pen**.
+   - **Pen** swaps the toolbar for pen tools: **Back**, **Pen**, **Marker**, **Eraser**, **Undo** and **✓ Done**. Marks are drawn straight onto the page. On ✓ the agent reads them:
+     - crossed-out words are removed;
+     - underlined words are stressed (bold);
+     - words under the marker become key points, which the twin brings up first;
+     - a circle leaves a yellow note asking what should change, and the answer edits the circled words, like a comment;
+     - a drawing anywhere else, such as in the margin, goes into the page as a sketch where it was drawn, and answers a note that asked for one.
+   - The agent then says what it did at the top of the page, with **Undo**. Back asks before throwing marks away. On a touch screen, two fingers scroll while the pen is out.
+   - **Validate** is in the top right. It goes back to the mind map, focused on the point.
    - The left rail shows the outline, the section, the projects, the sources and related points. Connect to iPad and Next task were removed.
 8. **Complete** → Create digital twin → **Final validation:** the expert and the twin answer the same questions, and the prototype shows a similarity score.
 9. **Digital twin complete** → Try your twin / Terms and royalties / Edit knowledge → **Release / Publish** → **Live** (End).
 
 ## The demo stories
 
-Each demo category is a made-up expert's files. The participant plays that expert and fills the gaps. Choose the one the participant can judge.
+Each demo category is an expert's files. The participant plays that expert and fills the gaps. Choose the one the participant can judge. The design and mainframe stories are made up. The research story is built from a participant's bachelor's thesis, shared for the usability test; see the note below the table.
 
-| | Digital Product Design | Mainframe Engineering |
-|---|---|---|
-| Expert | Design director at a studio (demo account: Lena Park) | Senior mainframe engineer (demo account: Robert Alvarez) |
-| Projects | Brewline (café ordering app), Ledger (banking dashboard for small shops), Atlas (museum guide app) | Claims batch (nightly, CLMPROC), Billing batch (monthly, BILLRUN) |
-| Twin | Product Design Practice: how she works, from value proposition to launch | Batch Systems Support: restarts, abends, month-end and who to call |
-| Files | 9: Brewline brief, research synthesis, Figma flows, design system and usability test; Ledger case study and usability report; Atlas case study; a handover call | 5: claims system diagram, claims runbook, code walkthrough, billing runbook, interview transcript |
-| Map | 5 sections in workflow order: 1. Value and strategy → 2. User research → 3. Structure and flows → 4. Interface design → 5. Test and ship | 4 sections: batch operations, debugging, code and data, people and process |
-| Points | 24: 16 validated, 7 gaps, 1 where projects differ | 24: 15 validated, 7 gaps, 2 where files disagree |
-| Differ or disagree | Tap target sizes (Brewline 44 pt, Ledger 32 px: why?) | Month-end edge cases, legacy rate tables |
-| Gaps | Success metrics, recruiting participants, scoping the first release, designing for the rush, prototyping, prioritizing findings, what new designers get wrong | Restart procedure, why CLMPROC runs twice, S0C7 debugging, reading a dump, feed format, on-call handover, newcomer mistakes |
+| | Digital Product Design | Mainframe Engineering | AI Optimization Research |
+|---|---|---|---|
+| Expert | Design director at a studio (demo account: Lena Park) | Senior mainframe engineer (demo account: Robert Alvarez) | Research student in evolutionary computation (demo account: Jordan Lin, a made-up name) |
+| Projects | Brewline (café ordering app), Ledger (banking dashboard for small shops), Atlas (museum guide app) | Claims batch (nightly, CLMPROC), Billing batch (monthly, BILLRUN) | Final framework, earlier versions, BBOB experiments |
+| Twin | Product Design Practice: how she works, from value proposition to launch | Batch Systems Support: restarts, abends, month-end and who to call | Surrogate Recommendation Research: an RL agent that picks which surrogate model guides differential evolution |
+| Files | 9: Brewline brief, research synthesis, Figma flows, design system and usability test; Ledger case study and usability report; Atlas case study; a handover call | 5: claims system diagram, claims runbook, code walkthrough, billing runbook, interview transcript | 1: the thesis (64 pages) |
+| Map | 5 sections in workflow order: 1. Value and strategy → 2. User research → 3. Structure and flows → 4. Interface design → 5. Test and ship | 4 sections: batch operations, debugging, code and data, people and process | 6 sections: 1. Problem and motivation → 2. Foundations → 3. Framework design → 4. Training and implementation → 5. Experiments → 6. Lessons and next steps |
+| Points | 24: 16 validated, 7 gaps, 1 where projects differ | 24: 15 validated, 7 gaps, 2 where files disagree | 31: 24 validated, 6 gaps, 1 where results differ |
+| Differ or disagree | Tap target sizes (Brewline 44 pt, Ledger 32 px: why?) | Month-end edge cases, legacy rate tables | The f15 exception (an ablation and an action test that go the other way on one function) |
+| Gaps | Success metrics, recruiting participants, scoping the first release, designing for the rush, prototyping, prioritizing findings, what new designers get wrong | Restart procedure, why CLMPROC runs twice, S0C7 debugging, reading a dump, feed format, on-call handover, newcomer mistakes | Choosing the reward weights, sizing the network, choosing the checkpoint, telling learning from oscillation, why DE's parameters stay fixed, what newcomers get wrong |
 
-The first tour task is the first conflict: **Tap target sizes** in the design story, **Month-end edge cases** in the mainframe one.
+The first tour task is the first conflict: **Tap target sizes** in the design story, **Month-end edge cases** in the mainframe one, and **The f15 exception** in the research one.
+
+**About the research story.** Its pages summarize the thesis in our own words, with its formulas (shown with `docs/js/math.js`), tables and results; one convergence chart is redrawn by eye and labelled approximate. The gaps are things the thesis doesn't say, so the author can answer them in the session. The author's name, student number and supervisor are left out, and the demo account name is made up. The thesis is still recognizable from its content; the participant agreed to it being in this public repo. Keep their personal details out of any changes.
 
 ## Royalties (our wording and model)
 
@@ -56,12 +66,13 @@ The first tour task is the first conflict: **Tap target sizes** in the design st
 
 ## What's simulated
 
+- **Formulas** are written in TeX and drawn as MathML by `docs/js/math.js`; browsers draw MathML natively.
 - **AI agents:** scripted in `docs/js/agent.js`.
   - Each function takes plain data and returns plain data, so a real model API can replace it later. The top of that file says where.
   - Short answers get a follow-up. When two files disagree, the agent asks which to trust. Answers go into the page as written; comments replace words, add a sentence or become a new note, by simple rules. A real model would rewrite the page instead.
 - **Uploads:** demo files map to the demo knowledge points. For your own `.md` or `.txt` files, the prototype reads the headings and the text under them and builds points from them. PDF and DOCX files only get generic points, because the prototype can't read them.
 - **Voice:** no real recording. Stopping fills in a demo transcript, which the user can edit before adding it to the page.
-- **Pen:** sketches are drawn in the browser and saved with the page.
+- **Pen:** marks are read by their shape and what's under them (`readMarks()` in `docs/js/views/point.js`), not by handwriting recognition. Sketches are saved with the page as small SVG images.
 - **Twin answers** in Try your twin come from matching keywords against validated points. They show sources, say "I don't know" instead of guessing, and offer to ask the expert.
 - **Data:** saved in each browser's localStorage. One account per browser.
 

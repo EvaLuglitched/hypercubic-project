@@ -96,7 +96,7 @@ export function render(root, { id, query }) {
       intro: 'Each demo is a set of files from a made-up expert. Choose the field you know best. You’ll play that expert and fill in the gaps the AI finds.',
       confirmLabel: 'Use these demo files',
       selected: story?.id || fieldStory?.id,
-      describe: (c) => ({ text: c.summary, meta: `${c.files.length} demo files · ${c.points.length} knowledge points` }),
+      describe: (c) => ({ text: c.summary, meta: `${c.files.length} demo ${c.files.length === 1 ? 'file' : 'files'} · ${c.points.length} knowledge points` }),
     });
     if (!id) return;
     const chosen = categoryById(id);

@@ -14,10 +14,11 @@ The site lives in [`docs/`](docs/): plain HTML, CSS and JavaScript modules, no b
 - `docs/js/views/` — one file per screen group: `auth` (sign up, log in, about you), `dashboard` (Home, Account, Settings, Help), `upload` (P1), `demo-picker` (the "Which demo do you want to explore?" dialog), `thinking`, `map` (P2–P4), `point` (a knowledge point as a document page), `finish` (create twin → final validation → terms and royalties → publish)
 - `docs/js/mindmap.js` — the zoomable mind map canvas
 - `docs/js/figures.js` — the charts and diagrams inside a knowledge point page
+- `docs/js/math.js` — turns TeX formulas into MathML for those pages
 - `docs/js/tour.js` — first-time tutorial
 - `docs/js/agent.js` — the simulated AI agents (where a real API would plug in)
 - `docs/js/demo.js` — the list of demo categories, and the demo accounts
-- `docs/js/demo/` — one file per demo story: `design.js` (Digital Product Design) and `mainframe.js` (Mainframe Engineering). Each holds the demo files, the projects they come from, the knowledge points (written as pages: summary, challenge, why, how, solution, examples), test questions and the demo account. Edit these to change a story.
+- `docs/js/demo/` — one file per demo story: `design.js` (Digital Product Design), `mainframe.js` (Mainframe Engineering) and `research.js` (AI Optimization Research, from a participant's thesis). Each holds the demo files, the projects they come from, the knowledge points (written as pages: summary, challenge, why, how, solution, examples), test questions and the demo account. Edit these to change a story.
 - `docs/js/store.js` — saved state (in the browser's localStorage)
 
 ### Run it locally

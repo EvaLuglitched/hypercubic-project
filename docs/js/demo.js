@@ -1,12 +1,14 @@
-// Demo content for the prototype. Nothing here is real data.
+// Demo content for the prototype. The design and mainframe stories are made up. The research story
+// summarizes a participant's thesis, shared for the usability test, with the author's details left out.
 // Each demo category is one story: a made-up expert, their files, the knowledge points the AI finds in
 // them, the final-validation questions and a returning demo account. The stories live in js/demo/.
 // To add a category, copy one of those files, change its content, and list it in CATEGORIES.
 import design from './demo/design.js';
 import mainframe from './demo/mainframe.js';
+import research from './demo/research.js';
 
 // In the order the "Use Demo Files" and "Use a demo account" pickers show them.
-export const CATEGORIES = [design, mainframe];
+export const CATEGORIES = [design, mainframe, research];
 
 export const categoryById = (id) => CATEGORIES.find((c) => c.id === id) || null;
 

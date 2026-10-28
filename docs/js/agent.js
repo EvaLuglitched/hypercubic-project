@@ -175,6 +175,7 @@ export function buildPage(point) {
     blocks,
     notes: gaps.map((g) => ({ id: bid('n'), state: 'open', answer: '', tries: 0, ...g })),
     comments: [],
+    marks: [], // passages stressed or highlighted with the pen
     changed: false,
   };
 }
