@@ -3,6 +3,7 @@
 import { esc, icon, logoMark, PRODUCT, dialog, go, toast, fmtBytes, timeAgo } from '../ui.js';
 import { store, getTwin, updateTwin, progress, tasksFor } from '../store.js';
 import { MindMap } from '../mindmap.js';
+import { projectsFor } from '../demo.js';
 import * as tour from '../tour.js';
 
 const TASKS_SHOWN = 5;
@@ -35,6 +36,7 @@ export function render(root, { id, query }) {
         <span><span class="dot-mini is-done" aria-hidden="true"></span>Validated</span>
         <span><span class="dot-mini is-gap" aria-hidden="true"></span>Needs you</span>
         <span><span class="legend-badge" aria-hidden="true">!</span>Sources disagree</span>
+        ${projectsFor(twin).length ? '<span><span class="legend-projects" aria-hidden="true"><span></span><span></span><span></span></span>Projects behind it</span>' : ''}
       </div>
       <button type="button" class="icon-btn" data-help aria-label="How to use the mind map">${icon('help')}</button>
     </div>
@@ -140,7 +142,8 @@ export function render(root, { id, query }) {
         <ul style="padding-left:1.25rem;display:grid;gap:.375rem">
           <li><strong>Black circles</strong> are validated.</li>
           <li><strong>Circles with a dashed ring</strong> need you: something is missing.</li>
-          <li><strong>A “!”</strong> means two of your files disagree.</li></ul>
+          <li><strong>A “!”</strong> means your files or your projects disagree.</li>
+          <li><strong>Small grey dots</strong> around a circle are the projects it came from.</li></ul>
         <p><strong>Move around:</strong> drag the background, or use the arrow keys. <strong>Zoom:</strong> scroll, or press + and −. <strong>See everything:</strong> press Fit or 0.</p>
         <p><strong>Open a point:</strong> click its circle, then press Open. Or pick one from Tasks.</p>`,
       actions: [{ label: 'Replay the tour', value: true }, { label: 'Close', value: false, primary: true }],
@@ -197,11 +200,25 @@ export function render(root, { id, query }) {
     }
   }
 
-  if (query.done) {
-    const pid = query.done;
+  if (query.done || query.focus) {
+    // Back from a knowledge point: show it on the map, with its update.
+    const pid = query.done || query.focus;
     setTimeout(() => { map.focusNode(pid, 0.9); map.pulse(pid); }, 250);
-    const pr = progress(getTwin(id));
-    toast(`Validated. ${pr.done} of ${pr.total} knowledge points are done.`);
+    if (query.done) {
+      const pr = progress(getTwin(id));
+      toast(`Validated. ${pr.done} of ${pr.total} knowledge points are done.`);
+    }
+    if (query.tour === 'done') {
+      setTimeout(() => {
+        if (!document.contains(screen)) return;
+        dialog({
+          title: 'You validated your first knowledge point',
+          body: `<p>That’s the whole loop: the agent found a gap, you filled it in your own words, and you checked the page.</p>
+            <p>Its circle is black now. Work through the other tasks whenever you’re ready. When you’re done, press <strong>Complete</strong>.</p>`,
+          actions: [{ label: 'Got it', value: true, primary: true }],
+        });
+      }, 1100);
+    }
   } else if (Number(query.added) > 0 && getTwin(id).status !== 'draft') {
     toast(`The AI found ${query.added} knowledge points in your files.`);
   }

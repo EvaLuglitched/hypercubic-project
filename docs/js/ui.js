@@ -51,7 +51,7 @@ const ICONS = {
   logout: '<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>',
   file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
   alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.1"/>',
-  ipad: '<rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M11 18.5h2"/>',
+  type: '<path d="M5 7V5h14v2M12 5v14M9 19h6"/>',
   edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
   trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',

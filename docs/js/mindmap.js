@@ -3,6 +3,7 @@
 // Nodes are real <button>s, so the map also works with a keyboard and screen readers.
 
 import { esc, icon, reducedMotion } from './ui.js';
+import { projectName } from './demo.js';
 
 const MIN_K = 0.12;
 const MAX_K = 1.8;
@@ -131,7 +132,11 @@ export class MindMap {
       }
       const p = n.point;
       const cls = p.status === 'complete' ? 'is-done' : `is-gap${p.status === 'conflict' ? ' is-conflict' : ''}`;
-      return `<button type="button" class="mm-node ${cls}" data-id="${esc(p.id)}" style="${style}" aria-label="${esc(p.title)}. ${STATUS_TEXT[p.status]}. Section ${esc(sectionTitle(p.section))}."><span class="mm-label">${esc(p.title)}</span>${p.status === 'conflict' ? '<span class="mm-badge" aria-hidden="true">!</span>' : ''}</button>`;
+      // One small grey dot around the circle for each project the point was found in.
+      const projects = p.projects || [];
+      const dots = projects.map((_, i) => `<span class="mm-proj" style="--a:${Math.round(-90 + (360 / projects.length) * i)}deg" aria-hidden="true"></span>`).join('');
+      const from = projects.length ? ` From ${projects.length === 1 ? 'one project' : `${projects.length} projects`}: ${projects.map((x) => projectName(this.twin, x)).join(', ')}.` : '';
+      return `<button type="button" class="mm-node ${cls}" data-id="${esc(p.id)}" style="${style}" aria-label="${esc(p.title)}. ${STATUS_TEXT[p.status]}. Section ${esc(sectionTitle(p.section))}.${esc(from)}"><span class="mm-label">${esc(p.title)}</span>${p.status === 'conflict' ? '<span class="mm-badge" aria-hidden="true">!</span>' : ''}${dots}</button>`;
     }).join('');
     // Section labels first, so they get the best spots; the twin's name is also in the panel.
     const labels = [...this.nodes.filter((n) => n.kind === 'hub'), this.byId.get('root')]
@@ -334,16 +339,17 @@ export class MindMap {
     const els = Array.from(this.labelLayer.children);
     for (const el of els) el.hidden = !overview;
     if (overview) {
-      const circles = this.nodes.map((m) => ({ id: m.id, ...this.screen(m) }));
+      const k = this.view.k;
+      // Room around each circle: a point's dashed ring, or its project dots further out.
+      const circles = this.nodes.map((m) => ({ id: m.id, ...this.screen(m), pad: m.point?.projects?.length ? Math.max(10, 30 * k) : Math.max(4, 14 * k) }));
       const root = circles.find((c) => c.id === 'root');
-      const pad = Math.max(4, 14 * this.view.k); // room for a point's dashed ring
       const sizes = els.map((el) => ({ w: el.offsetWidth, h: el.offsetHeight })); // all at once: one layout
       const taken = [];
       els.forEach((el, li) => {
         const s = circles.find((c) => c.id === el.dataset.for);
         const { w, h } = sizes[li];
         const prefer = s === root ? Math.PI / 2 : Math.atan2(root.y - s.y, root.x - s.x);
-        const clashes = (b) => circles.filter((c) => c !== s && boxHitsCircle(b, c, pad)).length
+        const clashes = (b) => circles.filter((c) => c !== s && boxHitsCircle(b, c, c.pad)).length
           + 3 * taken.filter((t) => b.x < t.x + t.w && t.x < b.x + b.w && b.y < t.y + t.h && t.y < b.y + b.h).length;
         const last = el.dataset.spot === undefined ? -1 : Number(el.dataset.spot);
         let best = null;
@@ -425,6 +431,7 @@ export class MindMap {
         <p class="pop-sec">${esc(sectionTitle(p.section))}</p>
         <h3>${esc(p.title)}</h3>
         <p class="pop-status"><span class="dot-mini ${dot}"></span>${STATUS_TEXT[p.status]}</p>
+        ${p.projects?.length ? `<p class="pop-projects"><span class="legend-projects" aria-hidden="true"><span></span><span></span><span></span></span>${p.projects.length === 1 ? 'From one project' : `From ${p.projects.length} projects`}: ${esc(p.projects.map((x) => projectName(this.twin, x)).join(', '))}</p>` : ''}
         <p class="pop-sum">${esc(summary.length > 150 ? summary.slice(0, 148) + '…' : summary)}</p>
         <div class="pop-actions"><button type="button" class="btn btn-primary btn-sm" data-open="${esc(p.id)}">${p.status === 'complete' ? 'Open' : 'Open and fill the gap'} ${icon('arrowRight', { size: 18 })}</button></div>`;
     } else {

@@ -10,7 +10,6 @@ const fresh = () => ({
   twins: [],
   settings: { text: 'standard', contrast: 'standard', motion: 'full' },
   tour: null,
-  ipad: false,
 });
 
 function load() {
@@ -64,7 +63,6 @@ export function createAccount({ name, email }) {
     s.session = true;
     s.twins = [];
     s.tour = null;
-    s.ipad = false;
   });
 }
 

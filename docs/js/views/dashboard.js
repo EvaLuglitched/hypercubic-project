@@ -79,7 +79,7 @@ function twinCard(t) {
 }
 
 async function createFlow() {
-  const example = categoryById(store.get().user.field)?.twinName || 'Claims Batch System';
+  const example = categoryById(store.get().user.field)?.twinName || 'Batch Systems Support';
   const name = await dialog({
     title: 'Name your digital twin',
     body: `<div class="field"><label for="twin-name">Twin name</label>
@@ -308,9 +308,9 @@ export function help(root) {
       <div class="panel-head"><h2 id="start-h">Building a twin, step by step</h2></div>
       <ol class="steps-list">
         <li><span><strong>Create a twin.</strong> On Home, press the box with the plus sign and give it a name.</span></li>
-        <li><span><strong>Upload documents.</strong> Briefs, runbooks, research, specs, notes, transcripts. Organized or not. No files? Use the demo files and choose a field to explore.</span></li>
-        <li><span><strong>Fill the gaps.</strong> The AI builds a mind map and lists tasks: things it couldn’t find or that don’t match. Answer them by typing, talking or sketching.</span></li>
-        <li><span><strong>Validate.</strong> Check each summary. When it’s right, press Validate and the circle turns black.</span></li>
+        <li><span><strong>Upload documents.</strong> Briefs, runbooks, research, specs, notes, transcripts, from as many projects as you like. Organized or not. No files? Use the demo files and choose a field to explore.</span></li>
+        <li><span><strong>Fill the gaps.</strong> The AI builds a mind map of your process and lists tasks. Each knowledge point opens as a page, with yellow notes where something is missing or your projects differ. Answer under the note, or select any text and comment on it.</span></li>
+        <li><span><strong>Validate.</strong> Check the page. When it’s right, press Validate and the circle turns black.</span></li>
         <li><span><strong>Complete and test.</strong> Your twin answers test questions next to you, so you can see how closely it matches.</span></li>
         <li><span><strong>Set terms and publish.</strong> Decide who can use it and how you earn royalties.</span></li>
       </ol>
@@ -330,10 +330,10 @@ export function help(root) {
     </section>
     <section class="panel faq" aria-labelledby="faq-h">
       <div class="panel-head"><h2 id="faq-h">Questions</h2></div>
-      <details><summary>What are the demo files?</summary><p>They let you try ${PRODUCT} without your own documents. On the upload screen, press Use Demo Files and choose a field: Digital Product Design (a café ordering app, from value proposition to launch) or Mainframe Engineering (a nightly COBOL claims system). You play that made-up expert and fill the gaps the AI finds.</p></details>
+      <details><summary>What are the demo files?</summary><p>They let you try ${PRODUCT} without your own documents. On the upload screen, press Use Demo Files and choose a field: Digital Product Design (a design director’s process across a café app, a banking dashboard and a museum guide) or Mainframe Engineering (two COBOL batch systems). You play that made-up expert and fill the gaps the AI finds.</p></details>
       <details><summary>Who can see my twin?</summary><p>Only you, until you publish it. When you publish, you choose who can use it: your team, your whole company, or licensed partners.</p></details>
       <details><summary>How do royalties work?</summary><p>Each time someone gets an answer from your published twin, you earn a royalty: either a fixed amount per answer, or a share of the license fee. Royalties continue after you retire, as long as the twin is in use.</p></details>
-      <details><summary>What if the AI gets something wrong?</summary><p>Nothing goes into your twin until you validate it. If a summary is wrong, press Refine and tell the agent what to change. If your files disagree with you, you can override them.</p></details>
+      <details><summary>What if the AI gets something wrong?</summary><p>Nothing goes into your twin until you validate it. If something on a page is wrong, select it and press Comment, or press Type and change it yourself. If your files disagree with you, you can keep your answer and mark the file as out of date.</p></details>
       <details><summary>Will my twin pretend to be me?</summary><p>No. Every answer is labelled as coming from an AI twin, shows its sources, and says “I don’t know” instead of guessing. People can ask you directly if you allow it.</p></details>
       <details><summary>Can I delete things?</summary><p>Yes. You can delete a twin at any time from Home. Deleting a published twin stops its answers and its royalties.</p></details>
     </section>`);

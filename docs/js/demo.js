@@ -20,6 +20,11 @@ export function categoryFor(twin) {
 
 export const clonePoint = (p) => JSON.parse(JSON.stringify(p));
 
+// The projects a twin's knowledge comes from. Each demo story names its own; a point lists the ids of the
+// projects it was found in.
+export const projectsFor = (twin) => categoryFor(twin)?.projects || [];
+export const projectName = (twin, id) => projectsFor(twin).find((p) => p.id === id)?.name || id;
+
 // A returning user for "Use a demo account" on the log-in page: one twin in progress, one published.
 export function demoAccount(categoryId) {
   const c = categoryById(categoryId) || CATEGORIES[0];
