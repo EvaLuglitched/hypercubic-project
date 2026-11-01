@@ -261,8 +261,8 @@ button.stat-link { font: inherit; color: inherit; text-align: left; cursor: poin
 .stat-link:hover { border-color: var(--ink); }
 .stat-link .stat-cta { display: inline-flex; align-items: center; gap: 0.375rem; font-weight: 600; }
 /* Home header: title on the left, search on the right */
-.page-head-row { flex-direction: row; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; }
-.page-head-text { display: flex; flex-direction: column; gap: 0.375rem; }
+.page-head-row { flex-direction: row; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 2.5rem; }
+.page-head-text { display: flex; flex-direction: column; gap: 0.75rem; } /* room between greeting, title and subtitle on Home */
 .page-sub { color: var(--muted); }
 .search-field { position: relative; width: min(17.5rem, 100%); }
 .search-field .icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
@@ -324,9 +324,11 @@ button.stat-link { font: inherit; color: inherit; text-align: left; cursor: poin
 .how-label strong { font-weight: 600; }
 .how-strip.is-cards { max-width: 26rem; }
 .how-strip.is-cards li { padding: 0.75rem 1rem; border: 1px solid var(--line); border-radius: var(--r); background: var(--white); }
-.how-strip.is-row { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin-bottom: 1.75rem; }
+.how-strip.is-row { gap: 1rem; margin-bottom: 2.75rem; padding: 1.25rem 1.75rem 1.5rem; border-radius: var(--r-lg); background: #fafafa; border: 1px solid #f0f0f0; }
 .how-strip.is-row .how-title { font-family: var(--mono); font-size: 0.8125rem; font-weight: 500; color: var(--muted); }
-.how-strip.is-row .how-steps { flex-direction: row; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+.how-strip.is-row .how-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem 1.5rem; }
+@media (max-width: 900px) { .how-strip.is-row .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .how-strip.is-row .how-steps { grid-template-columns: 1fr; } }
 .how-strip.is-row li { gap: 0.5rem; font-size: 0.9375rem; }
 .how-strip.is-row .how-icon { width: 1.75rem; height: 1.75rem; border-width: 1px; border-color: var(--line-strong); }
 .how-strip.is-row .how-label { flex-direction: row; align-items: baseline; gap: 0.375rem; }
