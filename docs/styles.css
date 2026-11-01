@@ -324,9 +324,9 @@ button.stat-link { font: inherit; color: inherit; text-align: left; cursor: poin
 .how-label strong { font-weight: 600; }
 .how-strip.is-cards { max-width: 26rem; }
 .how-strip.is-cards li { padding: 0.75rem 1rem; border: 1px solid var(--line); border-radius: var(--r); background: var(--white); }
-.how-strip.is-row { gap: 1rem; margin-bottom: 2.75rem; padding: 1.25rem 1.75rem 1.5rem; border-radius: var(--r-lg); background: #fafafa; border: 1px solid #f0f0f0; }
+.how-strip.is-row { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.5rem 2rem; margin-bottom: 2.75rem; padding: 0.875rem 1.5rem; border-radius: var(--r-lg); background: #fafafa; border: 1px solid #f0f0f0; }
 .how-strip.is-row .how-title { font-family: var(--mono); font-size: 0.8125rem; font-weight: 500; color: var(--muted); }
-.how-strip.is-row .how-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem 1.5rem; }
+.how-strip.is-row .how-steps { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem 1.5rem; }
 @media (max-width: 900px) { .how-strip.is-row .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .how-strip.is-row .how-steps { grid-template-columns: 1fr; } }
 .how-strip.is-row li { gap: 0.5rem; font-size: 0.9375rem; }
