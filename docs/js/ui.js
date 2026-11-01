@@ -35,6 +35,7 @@ const ICONS = {
   arrowRight: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   arrowDown: '<path d="M12 3v18M6 15l6 6 6-6"/>',
   chevronRight: '<path d="M9 6l6 6-6 6"/>',
+  chevronDown: '<path d="M6 9l6 6 6-6"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   more: '<circle cx="5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
@@ -78,6 +79,66 @@ export function icon(name, { size = 20, label = '' } = {}) {
   const a11y = label ? `role="img" aria-label="${esc(label)}"` : 'aria-hidden="true" focusable="false"';
   return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${a11y}>${ICONS[name] || ''}</svg>`;
 }
+
+// How the product works, in four steps: on the landing page (cards) and the dashboard (a row), so people know
+// from the start that other people use the twin and the expert earns from it. The same steps drive the
+// progress chip at the top left of every twin-building screen.
+const HOW_STEPS = [
+  { icon: 'upload', title: 'Upload your files', text: 'Notes, runbooks, reports and transcripts about your work.' },
+  { icon: 'map', title: 'Get a mind map', text: 'The AI sorts what you know and finds the gaps.' },
+  { icon: 'edit', title: 'Fill the gaps', text: 'Add what’s missing and confirm each point is right.' },
+  { icon: 'coin', title: 'Publish and earn', text: 'People ask your twin, and you earn a royalty for each answer.' },
+];
+export function howItWorks(layout = 'row') {
+  return `<section class="how-strip is-${layout}" aria-labelledby="how-h">
+    <h2 class="how-title" id="how-h">How it works</h2>
+    <ol class="how-steps">${HOW_STEPS.map((s, i) => `<li>
+      <span class="how-mark"><span class="how-icon">${icon(s.icon, { size: 20 })}</span><span class="how-num">Step ${i + 1}</span></span>
+      <strong>${s.title}</strong><span class="how-text">${s.text}</span></li>`).join('')}</ol>
+  </section>`;
+}
+
+// The top-left chip on the twin-building screens: the way Home, then where this twin is in the four steps
+// (`step` 1–4). Hovering, focusing or tapping the step opens a list of all four. `done` marks every step finished
+// (a published twin); `home: false` shows the logo without a link (while the AI is working).
+export function journeyChip(twin, step, { done = false, home = true } = {}) {
+  const state = (n) => (done || n < step ? 'done' : n === step ? 'current' : 'todo');
+  const status = (n) => ({ done: 'Done', current: 'You’re here', todo: n === step + 1 ? 'Up next' : '' })[state(n)];
+  const brand = `${logoMark()}<span>${PRODUCT}</span>`;
+  return `<div class="crumb journey" data-journey>
+    ${home ? `<a class="journey-home" href="#/home" aria-label="Back to your dashboard">${brand}</a>` : `<span class="journey-home">${brand}</span>`}
+    <button type="button" class="journey-btn" aria-expanded="false" aria-controls="journey-pop">
+      <span class="journey-dots" aria-hidden="true">${HOW_STEPS.map((_, i) => `<span class="is-${state(i + 1)}"></span>`).join('')}</span>
+      <span class="journey-label">${done ? 'Published' : HOW_STEPS[step - 1].title}</span><span class="sr-only">${done ? ': all steps done' : `: step ${step} of ${HOW_STEPS.length}`}</span>
+      ${icon('chevronDown', { size: 16 })}
+    </button>
+    <div class="journey-pop" id="journey-pop">
+      <p class="journey-twin">${esc(twin.name)}</p>
+      <ol class="journey-steps">${HOW_STEPS.map((s, i) => `<li class="is-${state(i + 1)}">
+        <span class="journey-mark" aria-hidden="true">${state(i + 1) === 'done' ? icon('check', { size: 12 }) : ''}</span>
+        <span class="journey-step">${s.title}</span><span class="journey-status">${status(i + 1)}</span></li>`).join('')}</ol>
+    </div>
+  </div>`;
+}
+// The chip opens on hover and focus by CSS; a click (or tap) pins it open, Escape or a click elsewhere closes it.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.journey-btn');
+  document.querySelectorAll('[data-journey].is-open').forEach((j) => {
+    if (!btn || !j.contains(btn)) { j.classList.remove('is-open'); j.querySelector('.journey-btn').setAttribute('aria-expanded', 'false'); }
+  });
+  if (btn) {
+    const open = btn.closest('[data-journey]').classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', String(open));
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const j = document.activeElement?.closest?.('[data-journey]') || document.querySelector('[data-journey].is-open');
+  if (!j) return;
+  j.classList.remove('is-open');
+  j.querySelector('.journey-btn').setAttribute('aria-expanded', 'false');
+  if (j.contains(document.activeElement)) document.activeElement.blur();
+});
 
 // Two overlapping circles: the expert and their twin. A placeholder until the team picks a logo.
 export function logoMark(size = 22) {

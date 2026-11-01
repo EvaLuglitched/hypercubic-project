@@ -178,6 +178,29 @@ code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); bor
 a.crumb:hover { background: var(--paper); }
 .crumb-sep { color: var(--muted); }
 .crumb.is-static { position: absolute; }
+/* The progress chip: Home, then the step this twin is on (●●○○). Hover, focus or a tap opens all four steps. */
+.crumb.journey { gap: 0.25rem; padding: 0 0.375rem 0 1.125rem; }
+.journey-home { display: inline-flex; align-items: center; gap: 0.5rem; padding-right: 0.75rem; border-right: 1px solid var(--line); color: inherit; text-decoration: none; }
+a.journey-home:hover { text-decoration: underline; }
+.journey-btn { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.25rem; padding: 0 0.625rem; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.journey-btn:hover, .journey.is-open .journey-btn { background: var(--paper); }
+.journey-dots { display: inline-flex; gap: 0.25rem; }
+.journey-dots span { width: 0.5rem; height: 0.5rem; border-radius: 50%; border: 1.5px solid var(--line-strong); }
+.journey-dots .is-done { background: var(--ink); border-color: var(--ink); }
+.journey-dots .is-current { background: var(--ink); border-color: var(--ink); box-shadow: 0 0 0 2px var(--white), 0 0 0 3.5px var(--ink); margin: 0 0.125rem; }
+.journey-pop { display: none; position: absolute; top: calc(100% + 0.5rem); left: 0; min-width: 18rem; padding: 0.875rem 1rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow-lg); }
+.journey-pop::before { content: ""; position: absolute; left: 0; right: 0; top: -0.625rem; height: 0.625rem; } /* keeps hover alive across the gap */
+.journey:hover .journey-pop, .journey:focus-within .journey-pop, .journey.is-open .journey-pop { display: block; }
+.journey-twin { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+.journey-steps { list-style: none; display: grid; gap: 0.5rem; }
+.journey-steps li { display: grid; grid-template-columns: 1.25rem 1fr auto; align-items: center; gap: 0.625rem; font-size: 0.9375rem; }
+.journey-mark { width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 1.5px solid var(--line-strong); display: inline-flex; align-items: center; justify-content: center; }
+.journey-steps .is-done .journey-mark { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.journey-steps .is-current .journey-mark { border-color: var(--ink); box-shadow: inset 0 0 0 3px var(--white), inset 0 0 0 10px var(--ink); }
+.journey-steps .is-current .journey-step { font-weight: 600; }
+.journey-steps .is-todo .journey-step { color: var(--muted); }
+.journey-status { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.journey-steps .is-current .journey-status { color: var(--ink); }
 
 /* ---------- Dialog, toast ---------- */
 .scrim { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: var(--scrim); animation: fade-in 0.15s ease; }
@@ -203,8 +226,10 @@ body:has(.kp-screen) #toast { bottom: 6.75rem; }
 .auth-logo { display: inline-flex; align-items: center; gap: 0.625rem; font-weight: 600; font-size: 1.125rem; }
 .auth-copy { display: flex; flex-direction: column; gap: 1rem; margin-top: auto; }
 .auth-display { font-size: clamp(2.5rem, 4.4vw, 4rem); line-height: 1.04; }
-.auth-lead { font-size: 1.125rem; color: var(--ink-2); max-width: 30rem; }
+.auth-lead { font-size: 1rem; color: var(--muted); max-width: 30rem; } /* secondary to How it works */
 .auth-graph { width: 100%; max-width: 28rem; height: auto; color: var(--ink); }
+/* With How it works on the landing page, the decorative graph only shows where there's room for both. */
+@media (max-height: 1080px) { .auth-graph { display: none; } }
 .auth-main { display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; }
 .auth-box { width: min(27rem, 100%); }
 .auth-title { font-size: 2rem; font-weight: 400; margin: 0.375rem 0 0.375rem; }
@@ -287,6 +312,25 @@ button.stat-link { font: inherit; color: inherit; text-align: left; cursor: poin
 .faq details p { margin-top: 0.625rem; color: var(--ink-2); max-width: 46rem; }
 .kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 1.75rem; height: 1.75rem; padding: 0 0.375rem; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 0.375rem; font-family: var(--mono); font-size: 0.8125rem; background: var(--white); }
 .steps-list { counter-reset: s; list-style: none; display: grid; gap: 0.875rem; }
+/* How it works: four steps, each with an icon and its number. Cards on the landing page, a row on the dashboard. */
+.how-strip { display: flex; flex-direction: column; gap: 0.875rem; }
+.how-title { font-size: 1.25rem; font-weight: 600; }
+.how-steps { list-style: none; display: grid; gap: 0.75rem; }
+.how-steps li { display: flex; flex-direction: column; gap: 0.25rem; }
+.how-mark { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.375rem; }
+.how-icon { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--white); display: inline-flex; align-items: center; justify-content: center; }
+.how-num { font-family: var(--mono); font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+.how-steps strong { font-weight: 600; }
+.how-text { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.45; }
+.how-strip.is-cards .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.how-strip.is-cards li { padding: 0.875rem 1rem; border: 1px solid var(--line); border-radius: var(--r); background: var(--white); }
+.how-strip.is-cards .how-mark { margin-bottom: 0.125rem; }
+.how-strip.is-cards .how-icon { width: 2.25rem; height: 2.25rem; }
+.how-strip.is-cards .how-text { font-size: 0.875rem; }
+.how-strip.is-row { margin-bottom: 2rem; padding: 1.25rem 1.5rem; border-radius: var(--r-lg); background: var(--paper); }
+.how-strip.is-row .how-title { font-size: 1rem; }
+.how-strip.is-row .how-steps { grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem 1.5rem; }
+@media (max-width: 720px) { .how-strip.is-cards .how-steps { grid-template-columns: 1fr; } }
 .steps-list li { counter-increment: s; display: flex; gap: 0.875rem; align-items: flex-start; }
 .steps-list li::before { content: counter(s); flex: none; width: 1.75rem; height: 1.75rem; border-radius: 50%; border: 1.5px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.8125rem; font-weight: 600; }
 
