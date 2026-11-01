@@ -1,5 +1,5 @@
 // P2 / P3 / P4: the mind map screen. Canvas in the middle, the twin panel and Tasks on the right,
-// Complete at the bottom right, zoom controls and legend at the bottom left.
+// Next (create the twin) at the bottom right, zoom controls and legend at the bottom left.
 import { esc, icon, logoMark, PRODUCT, dialog, go, toast, fmtBytes, timeAgo } from '../ui.js';
 import { store, getTwin, updateTwin, progress, tasksFor } from '../store.js';
 import { MindMap } from '../mindmap.js';
@@ -44,7 +44,7 @@ export function render(root, { id, query }) {
       <section class="panel-card" id="panel-info"></section>
       <section class="panel-card" id="panel-tasks" aria-labelledby="tasks-h"></section>
     </aside>
-    <button type="button" class="map-complete" id="complete-btn">Complete</button>
+    <button type="button" class="map-complete" id="complete-btn">Next: create my twin ${icon('arrowRight', { size: 18 })}</button>
   </div>`;
 
   const screen = root.querySelector('.map-screen');
@@ -87,10 +87,10 @@ export function render(root, { id, query }) {
           ${shown.map((p, i) => `<li><button type="button" class="task" data-task="${esc(p.id)}" aria-label="${i + 1}. ${esc(p.title)}: ${p.status === 'conflict' ? 'sources disagree' : 'missing information'}">${taskIcon(p)}<span class="task-text">${i + 1}. ${esc(p.title)}</span>${icon('chevronRight', { size: 18 })}</button></li>`).join('')}
         </ol>
         ${tasks.length > TASKS_SHOWN ? `<button type="button" class="link-btn task-more" data-more>${showAll ? 'Show fewer' : `Show all ${tasks.length} tasks`}</button>` : ''}`
-        : '<p class="muted" style="margin-top:.5rem">Every knowledge point is validated. Press Complete to create your twin.</p>'}`;
+        : '<p class="muted" style="margin-top:.5rem">Every knowledge point is validated. Press Next to create your twin.</p>'}`;
     const complete = root.querySelector('#complete-btn');
     complete.classList.toggle('is-ready', tasks.length === 0);
-    complete.textContent = t.status === 'published' ? 'Update published twin' : 'Complete';
+    complete.innerHTML = t.status === 'published' ? 'Update published twin' : `Next: create my twin ${icon('arrowRight', { size: 18 })}`;
   }
   drawPanel();
 
@@ -214,7 +214,7 @@ export function render(root, { id, query }) {
         dialog({
           title: 'You validated your first knowledge point',
           body: `<p>That’s the whole loop: the agent found a gap, you filled it in your own words, and you checked the page.</p>
-            <p>Its circle is black now. Work through the other tasks whenever you’re ready. When you’re done, press <strong>Complete</strong>.</p>`,
+            <p>Its circle is black now. Work through the other tasks whenever you’re ready. When you’re done, press <strong>Next: create my twin</strong>.</p>`,
           actions: [{ label: 'Got it', value: true, primary: true }],
         });
       }, 1100);
