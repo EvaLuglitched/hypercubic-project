@@ -216,10 +216,19 @@ export function ready(root, { id }) {
 }
 
 // ---------- Terms and royalties ----------
+// The three per-answer rates an expert picks from, recommended first.
+const RATES = [
+  { rate: 0.25, label: 'Recommended', recommended: true, why: 'The average other experts charge. A good place to start.' },
+  { rate: 0.5, label: 'Higher', why: 'Above average. Suits specialized knowledge that few others can offer.' },
+  { rate: 0.1, label: 'Lower', why: 'Below average. A more competitive rate, so more people are likely to use your twin.' },
+];
+
 export function terms(root, { id }) {
   const twin = guard(id);
   if (!twin) return;
   const t = twin.terms || { access: 'company', model: 'per-answer', rate: 0.25, credit: true, escalate: true, limits: '', consent: false };
+  // A saved rate that isn't one of the three choices any more falls back to the recommended one.
+  const rate = RATES.some((r) => r.rate === Number(t.rate)) ? Number(t.rate) : 0.25;
   root.innerHTML = `
   <div class="flow-screen">
     ${crumb(twin, 'Terms and royalties', `#/twin/${id}/ready`)}
@@ -245,8 +254,10 @@ export function terms(root, { id }) {
             <label class="radio-card"><input type="radio" name="model" value="license" ${t.model === 'license' ? 'checked' : ''}><span><strong>License share</strong><span class="muted">20% of what each team or partner pays per month to use your twin.</span></span></label>
           </div>
           <div class="field" id="rate-field" style="margin-top:1.25rem">
-            <label for="rate">Rate per answer</label>
-            <select class="select" id="rate" style="max-width:14rem">${[0.1, 0.25, 0.5, 1].map((r) => `<option value="${r}" ${Number(t.rate) === r ? 'selected' : ''}>${money(r)} per answer</option>`).join('')}</select>
+            <span class="field-label" id="rate-h">Rate per answer</span>
+            <div class="radio-cards" role="radiogroup" aria-labelledby="rate-h">
+              ${RATES.map((r) => `<label class="radio-card"><input type="radio" name="rate" value="${r.rate}" ${rate === r.rate ? 'checked' : ''}><span><strong>${money(r.rate)} per answer <span class="step-chip${r.recommended ? ' is-required' : ''}">${r.label}</span></strong><span class="muted">${r.why}</span></span></label>`).join('')}
+            </div>
           </div>
           <div class="field" style="margin-top:.5rem">
             <label for="volume">If your twin answers <span id="volume-out">200</span> questions a month</label>
@@ -281,7 +292,7 @@ export function terms(root, { id }) {
     form.querySelector('#volume-out').textContent = volume;
     form.querySelector('#rate-field').hidden = model === 'license';
     const fee = { team: 150, company: 400, partners: 1200 }[access];
-    const amount = model === 'license' ? fee * 0.2 * Math.max(1, Math.round(volume / 200)) : volume * Number(form.querySelector('#rate').value);
+    const amount = model === 'license' ? fee * 0.2 * Math.max(1, Math.round(volume / 200)) : volume * Number(form.querySelector('input[name="rate"]:checked').value);
     form.querySelector('#estimate').textContent = `${money(amount)} a month`;
   };
   form.addEventListener('input', est);
@@ -301,7 +312,7 @@ export function terms(root, { id }) {
       x.terms = {
         access: form.querySelector('input[name="access"]:checked').value,
         model: form.querySelector('input[name="model"]:checked').value,
-        rate: Number(form.querySelector('#rate').value),
+        rate: Number(form.querySelector('input[name="rate"]:checked').value),
         credit: form.querySelector('#credit').checked,
         escalate: form.querySelector('#escalate').checked,
         limits: form.querySelector('#limits').value.trim(),
