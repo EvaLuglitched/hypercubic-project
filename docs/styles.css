@@ -742,6 +742,22 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
 .meter-bar { height: 0.5rem; border-radius: 999px; background: var(--line); overflow: hidden; }
 .meter-bar > span { display: block; height: 100%; background: var(--ink); transition: width 0.6s ease; }
 .verdict { font-weight: 600; }
+/* Similarity score: an ⓘ explaining it, a 70% pass mark on the bar, and what the twin's answer is based on. */
+.meter-score { display: inline-flex; align-items: center; gap: 0.375rem; }
+.score-tip-wrap { position: relative; display: inline-flex; }
+.score-tip-btn { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: help; }
+.score-tip-btn:hover, .score-tip-btn:focus-visible { color: var(--ink); background: var(--paper); }
+.score-tip { position: absolute; right: 0; top: calc(100% + 0.5rem); z-index: 5; width: min(19rem, 80vw); display: flex; flex-direction: column; gap: 0.5rem; padding: 0.875rem 1rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow-lg); font-size: 0.875rem; font-weight: 400; line-height: 1.45; color: var(--ink-2); text-align: left; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.15s, visibility 0.15s; }
+.score-tip strong { color: var(--ink); }
+.score-tip-wrap:hover .score-tip, .score-tip-wrap:focus-within .score-tip { opacity: 1; visibility: visible; }
+.score-scale { display: grid; gap: 0.25rem; padding: 0.5rem 0.625rem; border-radius: 0.5rem; background: var(--paper); }
+.score-scale > span { display: flex; justify-content: space-between; gap: 1rem; }
+.score-scale b { font-family: var(--mono); font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
+.meter-track { position: relative; padding-bottom: 1.25rem; }
+.meter-pass { position: absolute; left: 70%; top: -0.25rem; height: 1rem; border-left: 2px solid var(--ink); }
+.meter-pass > span { position: absolute; top: 1.125rem; left: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--mono); font-size: 0.6875rem; color: var(--muted); }
+.qa-based { font-size: 0.875rem; color: var(--muted); }
+.qa-based strong { color: var(--ink-2); font-weight: 600; }
 .qa-steps { display: flex; gap: 0.5rem; }
 .qa-steps span { flex: 1; height: 0.25rem; border-radius: 999px; background: var(--line); }
 .qa-steps span.is-done { background: var(--ink); }

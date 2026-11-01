@@ -20,6 +20,21 @@ function guard(id) {
 
 const verdict = (score) => (score >= 70 ? 'Matches you' : score >= 40 ? 'Close, worth a look' : 'Different from you');
 
+// What the similarity score means, next to every score: hover, focus or tap the ⓘ. The score mostly checks whether
+// the key ideas match (similarity() in agent.js), so that's what the box says.
+const INFO_ICON = '<svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8v.1"/></svg>';
+const scoreTip = (id) => `<span class="score-tip-wrap">
+  <button type="button" class="score-tip-btn" aria-label="What does this score mean?" aria-describedby="score-tip-${id}">${INFO_ICON}</button>
+  <span class="score-tip" role="tooltip" id="score-tip-${id}">
+    <strong>How similar is your twin?</strong>
+    <span>We compare the key ideas in your answer with your twin’s, not the exact words.</span>
+    <span class="score-scale"><span><b>70% or more</b>Matches you</span><span><b>40–69%</b>Close, worth a look</span><span><b>Under 40%</b>Different from you</span></span>
+    <span class="muted">Lower scores usually mean a knowledge point isn’t validated yet.</span>
+  </span>
+</span>`;
+// The score bar, with a mark where a twin passes (70%).
+const scoreBar = (width) => `<div class="meter-track"><div class="meter-bar" aria-hidden="true"><span style="width:${width}%"></span></div><span class="meter-pass" aria-hidden="true"><span>70% pass</span></span></div>`;
+
 // ---------- Create digital twin ----------
 export function create(root, { id }) {
   const twin = guard(id);
@@ -108,6 +123,8 @@ export function validate(root, { id }) {
   async function compare(answer) {
     const q = questions[index];
     const twinAns = twinTestAnswer(getTwin(id), q, name);
+    // Why the twin answered this way: the knowledge points the question draws on.
+    const basedOn = q.points.map((pid) => getTwin(id).points.find((p) => p.id === pid)?.title).filter(Boolean).map((t) => `<strong>${esc(t)}</strong>`).join(', ');
     const score = twinAns.caveat ? Math.min(similarity(answer, twinAns.text, q.keywords), 45) : similarity(answer, q.answer, q.keywords);
     results.push({ id: q.id, question: q.question, answer, twin: twinAns.text, score, unsure: twinAns.unsure.map((p) => p.id) });
     box.innerHTML = `
@@ -115,11 +132,11 @@ export function validate(root, { id }) {
       <h2 class="qa-q">${esc(q.question)}</h2>
       <div class="qa-compare">
         <div class="qa-side"><p class="qa-side-label">${icon('user', { size: 18 })} You</p><p>${esc(answer)}</p></div>
-        <div class="qa-side is-twin"><p class="qa-side-label">${icon('chat', { size: 18 })} Your twin <span class="ai-tag">AI</span></p><p id="twin-answer"><span class="typing"><span></span><span></span><span></span><span class="typing-label">Thinking…</span></span></p></div>
+        <div class="qa-side is-twin"><p class="qa-side-label">${icon('chat', { size: 18 })} Your twin <span class="ai-tag">AI</span></p><p id="twin-answer"><span class="typing"><span></span><span></span><span></span><span class="typing-label">Thinking…</span></span></p>${basedOn ? `<p class="qa-based" id="qa-based" hidden>Based on: ${basedOn}</p>` : ''}</div>
       </div>
       <div class="meter" id="meter" hidden>
-        <div class="meter-top"><span class="verdict">${verdict(score)}</span><span class="meter-value">${score}% similar</span></div>
-        <div class="meter-bar" aria-hidden="true"><span style="width:0%"></span></div>
+        <div class="meter-top"><span class="verdict">${verdict(score)}</span><span class="meter-score"><span class="meter-value">${score}% similar</span>${scoreTip(`q${index}`)}</span></div>
+        ${scoreBar(0)}
         ${twinAns.caveat ? `<p class="caveat">${icon('alert', { size: 18 })}<span>Your twin isn’t sure, because ${twinAns.unsure.map((p) => `<strong>${esc(p.title)}</strong>`).join(', ')} ${twinAns.unsure.length === 1 ? 'isn’t' : 'aren’t'} validated yet.</span></p>` : ''}
       </div>
       <div class="choices" id="qa-next" style="justify-content:flex-end;margin-top:1.25rem" hidden>
@@ -129,6 +146,7 @@ export function validate(root, { id }) {
     await sleep(reducedMotion() ? 150 : 1100);
     if (!document.contains(box)) return;
     box.querySelector('#twin-answer').textContent = twinAns.text;
+    if (box.querySelector('#qa-based')) box.querySelector('#qa-based').hidden = false;
     box.querySelector('#meter').hidden = false;
     requestAnimationFrame(() => { box.querySelector('.meter-bar span').style.width = `${score}%`; });
     box.querySelector('#qa-next').hidden = false;
@@ -147,8 +165,8 @@ export function validate(root, { id }) {
     box.innerHTML = `
       <p class="eyebrow">Results</p>
       <div class="meter" style="margin-top:.25rem">
-        <div class="meter-top"><h2 class="qa-q" style="margin:0">${good ? 'Your twin answers like you.' : 'Your twin needs a little more work.'}</h2><span class="meter-value">${overall}%</span></div>
-        <div class="meter-bar" aria-hidden="true"><span style="width:${overall}%"></span></div>
+        <div class="meter-top"><h2 class="qa-q" style="margin:0">${good ? 'Your twin answers like you.' : 'Your twin needs a little more work.'}</h2><span class="meter-score"><span class="meter-value">${overall}%</span>${scoreTip('overall')}</span></div>
+        ${scoreBar(overall)}
       </div>
       <table class="table" style="margin-top:1.25rem;min-width:0">
         <thead><tr><th scope="col">Question</th><th scope="col">Similarity</th></tr></thead>
