@@ -81,7 +81,13 @@ export function render(root, { id, query }) {
       <div class="progress" role="progressbar" aria-label="Validated knowledge points" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pr.pct}"><span style="width:${pr.pct}%"></span></div>`;
     const shown = showAll ? tasks : tasks.slice(0, TASKS_SHOWN);
     root.querySelector('#panel-tasks').innerHTML = `
-      <h2 class="panel-title" id="tasks-h">Tasks</h2>
+      <div class="tasks-head">
+        <h2 class="panel-title" id="tasks-h">Tasks</h2>
+        <span class="info-tip">
+          <button type="button" class="info-btn" aria-label="About tasks" aria-describedby="tasks-tip">${icon('info', { size: 18 })}</button>
+          <span class="tip" role="tooltip" id="tasks-tip">Each task is a knowledge point that needs more info: add what’s missing, or settle where your sources disagree.</span>
+        </span>
+      </div>
       ${tasks.length ? `
         <ol class="task-list">
           ${shown.map((p, i) => `<li><button type="button" class="task" data-task="${esc(p.id)}" aria-label="${i + 1}. ${esc(p.title)}: ${p.status === 'conflict' ? 'sources disagree' : 'missing information'}">${taskIcon(p)}<span class="task-text">${i + 1}. ${esc(p.title)}</span>${icon('chevronRight', { size: 18 })}</button></li>`).join('')}

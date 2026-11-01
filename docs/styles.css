@@ -436,6 +436,13 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
 #panel-tasks { min-height: 0; overflow-y: auto; }
 .panel-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
 .panel-title { font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+.tasks-head { display: flex; align-items: center; gap: 0.375rem; }
+/* An ⓘ with a hover/focus tooltip. It opens to the right, so the scrolling Tasks card doesn't clip it. */
+.info-tip { position: relative; display: inline-flex; }
+.info-btn { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); }
+.info-btn:hover, .info-btn:focus-visible { color: var(--ink); background: var(--paper); }
+.info-tip .tip { position: absolute; left: calc(100% + 0.5rem); top: -0.25rem; z-index: 2; width: max-content; max-width: 13rem; padding: 0.5rem 0.75rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow); font-size: 0.875rem; font-weight: 400; line-height: 1.4; color: var(--ink-2); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.15s, visibility 0.15s; }
+.info-tip:hover .tip, .info-tip:focus-within .tip { opacity: 1; visibility: visible; }
 .panel-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 2.5rem; }
 .row-link { display: inline-flex; align-items: center; gap: 0.5rem; background: none; border: 0; padding: 0; font: inherit; text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
 .row-link:hover { text-decoration-color: var(--ink); }
