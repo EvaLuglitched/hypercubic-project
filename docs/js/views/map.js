@@ -34,7 +34,7 @@ export function render(root, { id, query }) {
       </div>
       <div class="legend" aria-label="Legend">
         <span><span class="dot-mini is-done" aria-hidden="true"></span>Validated</span>
-        <span><span class="dot-mini is-gap" aria-hidden="true"></span>Needs you</span>
+        <span><span class="dot-mini is-gap" aria-hidden="true"></span>Needs more info</span>
         <span><span class="legend-badge" aria-hidden="true">!</span>Sources disagree</span>
         ${projectsFor(twin).length ? '<span><span class="legend-projects" aria-hidden="true"><span></span><span></span><span></span></span>Projects behind it</span>' : ''}
       </div>
@@ -141,7 +141,7 @@ export function render(root, { id, query }) {
       body: `<p>Each circle is one piece of your knowledge.</p>
         <ul style="padding-left:1.25rem;display:grid;gap:.375rem">
           <li><strong>Black circles</strong> are validated.</li>
-          <li><strong>Circles with a dashed ring</strong> need you: something is missing.</li>
+          <li><strong>Circles with a dashed ring</strong> need more info: something is missing.</li>
           <li><strong>A “!”</strong> means your files or your projects disagree.</li>
           <li><strong>Small grey dots</strong> around a circle are the projects it came from.</li></ul>
         <p><strong>Move around:</strong> drag the background, or use the arrow keys. <strong>Zoom:</strong> scroll, or press + and −. <strong>See everything:</strong> press Fit or 0.</p>
@@ -158,7 +158,7 @@ export function render(root, { id, query }) {
     const ok = await dialog({
       title: left ? 'Complete your twin now?' : 'Create your digital twin?',
       body: left
-        ? `<p>${left} knowledge ${left === 1 ? 'point still needs' : 'points still need'} you. If you complete now, your twin will answer “I don’t know” about ${left === 1 ? 'it' : 'them'} until you fill the gaps.</p><p class="muted">You can come back and finish them at any time.</p>`
+        ? `<p>${left} knowledge ${left === 1 ? 'point still needs' : 'points still need'} more info. If you complete now, your twin will answer “I don’t know” about ${left === 1 ? 'it' : 'them'} until you fill the gaps.</p><p class="muted">You can come back and finish them at any time.</p>`
         : '<p>The Knowledge agent will take in every validated point. Then you’ll test your twin: it answers a few questions next to you, so you can see how closely it matches your thinking.</p>',
       actions: left
         ? [{ label: 'Keep working', value: false }, { label: 'Complete anyway', value: true, primary: true }]
@@ -178,7 +178,7 @@ export function render(root, { id, query }) {
         html: `<p>Everything the AI learned from your documents. Each circle is one piece of your knowledge.</p>
           <div class="coach-legend">
             <span><span class="dot-mini is-done"></span>Black: validated</span>
-            <span><span class="dot-mini is-gap"></span>Dashed ring: needs you</span>
+            <span><span class="dot-mini is-gap"></span>Dashed ring: needs more info</span>
             <span><span class="legend-badge">!</span>Two files disagree</span>
           </div>`,
         onNext: () => { tour.setStep('map-move'); runTour(); },

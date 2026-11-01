@@ -372,7 +372,7 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
   box-shadow: 0 0 0 var(--halo) var(--white), 0 0 0 calc(var(--halo) + max(2px, calc(1.5px / var(--k)))) var(--ink);
   transition: transform 0.15s; /* the ring follows the zoom at once */
 }
-/* Needs you: a white circle with one dashed ring close around it, and a ripple that radiates from the ring.
+/* Needs more info: a white circle with one dashed ring close around it, and a ripple that radiates from the ring.
    --k is the zoom level and --node-r the circle's radius. Zoomed out, the lines keep their on-screen thickness,
    the ring keeps a small gap and the dashes keep their length (about 13px apart), so the points stay crisp. */
 .mm-node.is-gap {
@@ -423,7 +423,7 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
 .mm-pop .pop-actions { display: flex; gap: 0.5rem; }
 .dot-mini { display: inline-block; width: 0.875rem; height: 0.875rem; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
 .dot-mini.is-done { background: var(--ink); }
-/* The same circle and dashed ring as a "Needs you" point on the map. */
+/* The same circle and dashed ring as a "Needs more info" point on the map. */
 .dot-mini.is-gap {
   border: 0; background: var(--ink);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23000'%3E%3Ccircle cx='7' cy='7' r='3.9' stroke-width='1.4'/%3E%3Ccircle cx='7' cy='7' r='6.4' stroke-width='1' pathLength='8' stroke-dasharray='.58 .42'/%3E%3C/svg%3E") center / 100% 100% no-repeat;

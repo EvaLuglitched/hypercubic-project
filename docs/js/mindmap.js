@@ -128,7 +128,7 @@ export class MindMap {
       if (n.kind === 'hub') {
         const pts = this.twin.points.filter((p) => p.section === n.section);
         const open = pts.filter((p) => p.status !== 'complete').length;
-        return `<button type="button" class="mm-node is-hub" data-id="${esc(n.id)}" style="${style}" aria-label="Section ${esc(n.label)}: ${pts.length} knowledge points, ${open} need you"><span class="mm-label">${esc(n.label)}</span></button>`;
+        return `<button type="button" class="mm-node is-hub" data-id="${esc(n.id)}" style="${style}" aria-label="Section ${esc(n.label)}: ${pts.length} knowledge points, ${open} need more info"><span class="mm-label">${esc(n.label)}</span></button>`;
       }
       const p = n.point;
       const cls = p.status === 'complete' ? 'is-done' : `is-gap${p.status === 'conflict' ? ' is-conflict' : ''}`;
