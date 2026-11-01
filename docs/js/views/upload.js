@@ -56,6 +56,9 @@ export function render(root, { id, query }) {
         </div>
         <p class="form-error" role="alert" id="upload-error" hidden></p>
         <div class="demo-note" id="demo-note" hidden></div>
+        <div class="file-list-head" id="file-list-head" hidden>
+          <label class="check"><input type="checkbox" id="use-all"><span>Select all</span></label>
+        </div>
         <ul class="file-list" id="file-list" aria-label="Files to upload"></ul>
       </section>
       <div class="upload-actions">
@@ -71,16 +74,24 @@ export function render(root, { id, query }) {
   const zone = root.querySelector('#dropzone');
   const error = root.querySelector('#upload-error');
   const note = root.querySelector('#demo-note');
+  const head = root.querySelector('#file-list-head');
+  const useAll = root.querySelector('#use-all');
 
   const draw = () => {
     list.innerHTML = files.map((f, i) => `
       <li class="file-row">
+        <input type="checkbox" class="file-check" data-use="${i}" ${f.use ? 'checked' : ''} aria-label="Use ${esc(f.name)}">
         <span class="file-icon" aria-hidden="true">${esc(ext(f.name).toUpperCase().slice(0, 4))}</span>
         <span class="file-text"><span class="file-name">${esc(f.name)}</span><span class="file-meta">${fmtBytes(f.size)}${f.text ? ' · text read' : ''}</span></span>
         ${f.demo ? '<span class="tag">Demo</span>' : ''}
         <button type="button" class="icon-btn icon-btn-sm icon-btn-plain" data-remove="${i}" aria-label="Remove ${esc(f.name)}">${icon('close', { size: 18 })}</button>
       </li>`).join('');
-    goBtn.disabled = files.length === 0;
+    // Only checked files build the mind map; Select all checks or clears them all at once.
+    const used = files.filter((f) => f.use).length;
+    head.hidden = files.length === 0;
+    useAll.checked = files.length > 0 && used === files.length;
+    useAll.indeterminate = used > 0 && used < files.length;
+    goBtn.disabled = used === 0;
     if (!files.some((f) => f.demo)) story = null;
     note.hidden = !story;
     note.innerHTML = story ? `
@@ -108,7 +119,7 @@ export function render(root, { id, query }) {
       return;
     }
     story = chosen;
-    files.push(...fresh.map((f) => ({ ...f, demo: true, text: '' })));
+    files.push(...fresh.map((f) => ({ ...f, demo: true, text: '', use: true })));
     draw();
     toast(`Added ${fresh.length} demo files for ${chosen.label}.`);
   }
@@ -121,7 +132,7 @@ export function render(root, { id, query }) {
       if (!ACCEPTED.includes(ext(file.name))) { skipped.push(`${file.name} (type not supported yet)`); continue; }
       if (file.size > MAX_BYTES) { skipped.push(`${file.name} (over 50 MB)`); continue; }
       if (files.some((f) => f.name === file.name) || already.has(file.name)) { skipped.push(`${file.name} (already added)`); continue; }
-      files.push({ name: file.name, size: file.size, type: ext(file.name).toUpperCase(), text: await readText(file) });
+      files.push({ name: file.name, size: file.size, type: ext(file.name).toUpperCase(), text: await readText(file), use: true });
     }
     if (skipped.length) showError(`Some files were skipped: ${skipped.join(', ')}.`);
     draw();
@@ -138,6 +149,17 @@ export function render(root, { id, query }) {
   });
   root.querySelector('#demo-btn').addEventListener('click', useDemoFiles);
   note.addEventListener('click', (e) => { if (e.target.closest('[data-change-demo]')) useDemoFiles(); });
+  list.addEventListener('change', (e) => {
+    const box = e.target.closest('[data-use]');
+    if (!box) return;
+    files[Number(box.dataset.use)].use = box.checked;
+    draw();
+    list.querySelector(`[data-use="${box.dataset.use}"]`)?.focus();
+  });
+  useAll.addEventListener('change', () => {
+    for (const f of files) f.use = useAll.checked;
+    draw();
+  });
   list.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-remove]');
     if (!btn) return;
@@ -158,7 +180,7 @@ export function render(root, { id, query }) {
   }));
   goBtn.addEventListener('click', () => {
     updateTwin(id, (t) => {
-      t.pending = files.map((f) => ({ ...f, addedAt: Date.now() }));
+      t.pending = files.filter((f) => f.use).map(({ use, ...f }) => ({ ...f, addedAt: Date.now() }));
       // A twin that wasn't given a name takes the demo story's name.
       if (story && t.name === 'Untitled twin') t.name = story.twinName;
     });
