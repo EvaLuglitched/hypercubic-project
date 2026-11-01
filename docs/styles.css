@@ -331,7 +331,6 @@ button.stat-link { font: inherit; color: inherit; text-align: left; cursor: poin
 @media (max-width: 520px) { .how-strip.is-row .how-steps { grid-template-columns: 1fr; } }
 .how-strip.is-row li { gap: 0.5rem; font-size: 0.9375rem; }
 .how-strip.is-row .how-icon { width: 1.75rem; height: 1.75rem; border-width: 1px; border-color: var(--line-strong); }
-.how-strip.is-row .how-label { flex-direction: row; align-items: baseline; gap: 0.375rem; }
 .how-strip.is-row .how-label strong { font-weight: 500; }
 .steps-list li { counter-increment: s; display: flex; gap: 0.875rem; align-items: flex-start; }
 .steps-list li::before { content: counter(s); flex: none; width: 1.75rem; height: 1.75rem; border-radius: 50%; border: 1.5px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.8125rem; font-weight: 600; }
