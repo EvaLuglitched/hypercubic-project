@@ -187,9 +187,9 @@ export function ready(root, { id }) {
         <p class="lead">${v ? `In the final check, your twin’s answers were <strong>${v.overall}% similar</strong> to yours.` : 'Your twin has taken in everything you validated.'} Try it, decide who can use it, and publish it when you’re happy.</p>
       </header>
       <div class="option-grid">
-        <a class="option-card" href="#/twin/${id}/try"><span class="option-icon">${icon('chat')}</span><h3>Try your twin</h3><p class="muted">Ask it questions the way ${esc(newcomer(twin))} would.</p></a>
-        <a class="option-card" href="#/twin/${id}/terms"><span class="option-icon">${icon('coin')}</span><h3>Terms and royalties</h3><p class="muted">Who can use it, and how you earn from it.</p>${termsDone ? `<span class="done-mark">${icon('check', { size: 14 })} Set up</span>` : '<span class="done-mark">Needed before you publish</span>'}</a>
-        <a class="option-card" href="#/twin/${id}/map"><span class="option-icon">${icon('edit')}</span><h3>Edit knowledge</h3><p class="muted">Go back to the mind map to fix or add anything.</p></a>
+        <a class="option-card" href="#/twin/${id}/terms"><span class="option-icon">${icon('coin')}</span><h3>Terms and royalties <span class="step-chip is-required">Required</span></h3><p class="muted">Who can use it, and how you earn from it.</p>${termsDone ? `<span class="done-mark">${icon('check', { size: 14 })} Set up</span>` : '<span class="done-mark">Needed before you publish</span>'}</a>
+        <a class="option-card" href="#/twin/${id}/try"><span class="option-icon">${icon('chat')}</span><h3>Try your twin <span class="step-chip">Optional</span></h3><p class="muted">Ask it questions the way ${esc(newcomer(twin))} would.</p></a>
+        <a class="option-card" href="#/twin/${id}/map"><span class="option-icon">${icon('edit')}</span><h3>Edit knowledge <span class="step-chip">Optional</span></h3><p class="muted">Go back to the mind map to fix or add anything.</p></a>
       </div>
       <section class="release-bar" aria-label="Release">
         <div><h2 style="font-size:1.25rem;font-weight:600">${published ? 'Your twin is live' : 'Release your twin'}</h2><p class="muted">${published ? 'People you chose can ask it questions now.' : termsDone ? 'Everything is set. Publishing makes it available to the people you chose.' : 'Set up terms and royalties first.'}</p></div>
