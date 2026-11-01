@@ -1,6 +1,6 @@
 // After "Complete": Create digital twin → Final validation (agent answer vs. user answer → similarity)
 // → Digital twin complete (try it, set up terms and royalties, edit) → Release / publish → End.
-import { esc, icon, rich, logoMark, PRODUCT, dialog, go, toast, sleep, reducedMotion, money, firstName, focusHeading } from '../ui.js';
+import { esc, icon, rich, dialog, go, toast, sleep, reducedMotion, money, firstName, focusHeading, journeyChip } from '../ui.js';
 import { store, getTwin, updateTwin, progress, uid } from '../store.js';
 import { testQuestionsFor, twinTestAnswer, similarity, askTwin, trySuggestionsFor } from '../agent.js';
 import { categoryFor, categoryById } from '../demo.js';
@@ -8,8 +8,8 @@ import { categoryFor, categoryById } from '../demo.js';
 // Who asks the twin questions: "a new designer", "a new engineer"… from the demo story or the expert's field.
 const newcomer = (twin) => (categoryFor(twin) || categoryById(store.get().user?.field))?.newcomer || 'someone new';
 
-const crumb = (twin, label, href = `#/twin/${twin.id}/map`) =>
-  `<a class="crumb" href="${href}">${logoMark()}<span>${PRODUCT}</span><span class="crumb-sep" aria-hidden="true">/</span><span>${esc(label)}</span></a>`;
+// Everything after the mind map is step 4, Publish and earn; a published twin has done every step.
+const crumb = (twin) => journeyChip(twin, 4, { done: twin.status === 'published' });
 
 function guard(id) {
   const twin = getTwin(id);
@@ -33,7 +33,7 @@ export function create(root, { id }) {
   ];
   root.innerHTML = `
   <div class="thinking-screen">
-    ${crumb(twin, twin.name)}
+    ${crumb(twin)}
     <main class="thinking-main" id="main">
       <h1 class="thinking-title">Creating your twin<span class="dots" aria-hidden="true"></span></h1>
       <p class="thinking-sub" id="now" aria-live="polite">Starting</p>
@@ -71,7 +71,7 @@ export function validate(root, { id }) {
 
   root.innerHTML = `
   <div class="flow-screen">
-    ${crumb(twin, 'Final validation')}
+    ${crumb(twin)}
     <main class="flow-main" id="main">
       <header class="flow-head">
         <p class="eyebrow">Final validation</p>
@@ -178,7 +178,7 @@ export function ready(root, { id }) {
   const published = twin.status === 'published';
   root.innerHTML = `
   <div class="flow-screen">
-    ${crumb(twin, twin.name, '#/home')}
+    ${crumb(twin)}
     <main class="flow-main" id="main">
       <header class="flow-head">
         <span class="big-check" aria-hidden="true">${icon('check', { size: 36 })}</span>
@@ -222,7 +222,7 @@ export function terms(root, { id }) {
   const t = twin.terms || { access: 'company', model: 'per-answer', rate: 0.25, credit: true, escalate: true, limits: '', consent: false };
   root.innerHTML = `
   <div class="flow-screen">
-    ${crumb(twin, 'Terms and royalties', `#/twin/${id}/ready`)}
+    ${crumb(twin)}
     <main class="flow-main" id="main" style="max-width:48rem">
       <header class="flow-head">
         <p class="eyebrow">Set up terms and usage</p>
@@ -403,7 +403,7 @@ export function published(root, { id }) {
   const royalty = t.model === 'license' ? '20% of license fees' : `${money(t.rate)} per answer`;
   root.innerHTML = `
   <div class="flow-screen">
-    ${crumb(twin, twin.name, '#/home')}
+    ${crumb(twin)}
     <main class="flow-main" id="main">
       <header class="flow-head">
         <span class="big-check" aria-hidden="true">${icon('check', { size: 36 })}</span>

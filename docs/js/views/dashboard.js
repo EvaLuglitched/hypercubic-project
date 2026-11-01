@@ -1,6 +1,6 @@
 // The dashboard: one level above the mind map, like Photoshop's home screen.
 // Home lists every digital twin (plus a "+" box to create one), Account holds the profile and royalties.
-import { esc, icon, logoMark, PRODUCT, dialog, go, toast, money, timeAgo, greeting, firstName, initials, monthLabel, focusHeading, reducedMotion } from '../ui.js';
+import { esc, icon, logoMark, PRODUCT, dialog, go, toast, money, timeAgo, greeting, firstName, initials, monthLabel, focusHeading, reducedMotion, howItWorks } from '../ui.js';
 import { store, createTwin, deleteTwin, updateTwin, progress, logOut, applySettings, twinHome } from '../store.js';
 import { thumbnailSVG } from '../mindmap.js';
 import { categoryById } from '../demo.js';
@@ -132,6 +132,7 @@ export function home(root) {
         </div>
         ${twins.length ? `<div class="search-field">${icon('search', { size: 18 })}<label for="twin-search" class="sr-only">Search twins</label><input type="search" class="search-input" id="twin-search" placeholder="Search twins" autocomplete="off"></div>` : ''}
       </header>
+      ${howItWorks('row')}
       <section class="twin-grid" aria-label="Your twins">
         <button type="button" class="twin-card create-card" data-create>
           <span class="create-plus" aria-hidden="true">${icon('plus', { size: 28 })}</span>

@@ -1,6 +1,6 @@
 // "Thinking......": the Knowledge agent reads the files, the Validate agent checks them,
 // then the mind map is built (Receive knowledge → Validate agent checks → Validation complete).
-import { esc, logoMark, PRODUCT, go, sleep, reducedMotion, focusHeading } from '../ui.js';
+import { esc, go, sleep, reducedMotion, focusHeading, journeyChip } from '../ui.js';
 import { getTwin, updateTwin } from '../store.js';
 import { thinkingSteps, buildKnowledge } from '../agent.js';
 
@@ -13,7 +13,7 @@ export function render(root, { id }) {
 
   root.innerHTML = `
   <div class="thinking-screen">
-    <span class="crumb">${logoMark()}<span>${PRODUCT}</span><span class="crumb-sep" aria-hidden="true">/</span><span>${esc(twin.name)}</span></span>
+    ${journeyChip(twin, 2, { home: false })}
     <main class="thinking-main" id="main">
       <h1 class="thinking-title">Thinking<span class="dots" aria-hidden="true"></span></h1>
       <p class="thinking-sub" id="now" aria-live="polite">Reading your files</p>

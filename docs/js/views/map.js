@@ -1,6 +1,6 @@
 // P2 / P3 / P4: the mind map screen. Canvas in the middle, the twin panel and Tasks on the right,
 // Complete at the bottom right, zoom controls and legend at the bottom left.
-import { esc, icon, logoMark, PRODUCT, dialog, go, toast, fmtBytes, timeAgo } from '../ui.js';
+import { esc, icon, dialog, go, toast, fmtBytes, timeAgo, journeyChip } from '../ui.js';
 import { store, getTwin, updateTwin, progress, tasksFor } from '../store.js';
 import { MindMap } from '../mindmap.js';
 import { projectsFor } from '../demo.js';
@@ -24,7 +24,7 @@ export function render(root, { id, query }) {
   <div class="map-screen">
     <h1 class="sr-only">Mind map of ${esc(twin.name)}</h1>
     <div class="map-stage" id="map-stage"></div>
-    <a class="crumb" href="#/home" aria-label="Back to your dashboard">${logoMark()}<span>${PRODUCT}</span><span class="crumb-sep" aria-hidden="true">/</span><span>Mind Map</span></a>
+    ${journeyChip(twin, 3)}
     <div class="map-tools">
       <div class="zoom-group" role="group" aria-label="Zoom">
         <button type="button" class="icon-btn" data-zoom="out" aria-label="Zoom out">${icon('minus')}</button>
