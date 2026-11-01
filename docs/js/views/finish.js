@@ -157,7 +157,7 @@ export function validate(root, { id }) {
       <p class="muted" style="margin-top:1rem">${good ? 'You can still improve any answer later from the mind map.' : 'Answers drop when knowledge points aren’t validated yet. Fill those gaps, or accept the twin as it is: it will say “I don’t know” where it isn’t sure.'}</p>
       <div class="choices" style="justify-content:flex-end;margin-top:1.25rem">
         <a class="btn" href="#/twin/${id}/map">Improve on the mind map</a>
-        <button type="button" class="btn btn-primary" data-accept>${good ? 'Continue' : 'Accept and continue'} ${icon('arrowRight', { size: 18 })}</button>
+        <button type="button" class="btn btn-primary" data-accept>${good ? 'Next: set terms and publish' : 'Accept and continue'} ${icon('arrowRight', { size: 18 })}</button>
       </div>`;
     box.querySelector('[data-accept]').addEventListener('click', () => {
       updateTwin(id, (t) => { if (t.status !== 'published') t.status = 'ready'; });
