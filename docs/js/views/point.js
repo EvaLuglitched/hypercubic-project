@@ -3,7 +3,7 @@
 // underneath. Yellow notes from the agent mark what the files don't say, or where projects or files differ;
 // the expert answers right under a note and presses ✓. Select any text to comment on it, and the agent
 // updates the page. The floating toolbar has other ways to add to it: Type, Chat, Voice, and Pen, which marks
-// up the page for the agent to read. Validate, top right, goes back to the mind map, focused on this point.
+// up the page for the agent to read. Mark as correct, after the last section, goes back to the mind map, focused on this point.
 import { esc, icon, dialog, go, toast, sleep, reducedMotion, focusHeading } from '../ui.js';
 import { getTwin, updateTwin } from '../store.js';
 import { DOC_SECTIONS, sectionLabel, buildPage, answerNote, applyComment, placeFor, pageText, sentence } from '../agent.js';
@@ -191,8 +191,6 @@ export function render(root, { id, pid }) {
       <div class="point-top-actions">
         <button type="button" class="btn btn-sm rail-toggle" id="rail-toggle" aria-expanded="false" aria-controls="kp-rail">${icon('outline', { size: 18 })} Outline</button>
         <span class="status-pill" id="status-pill"></span>
-        <p class="validate-hint" id="validate-hint" aria-live="polite"></p>
-        <button type="button" class="btn btn-primary btn-sm kp-validate-btn" id="validate-btn" aria-describedby="validate-hint">Validate</button>
       </div>
     </header>
     <div class="kp-body">
@@ -203,6 +201,11 @@ export function render(root, { id, pid }) {
             <article class="kp-doc" id="kp-doc" aria-label="${esc(point.title)}"></article>
             <svg class="kp-ink" id="kp-ink" aria-hidden="true"></svg>
           </div>
+          <section class="kp-finish" aria-labelledby="finish-q">
+            <h2 class="kp-finish-q" id="finish-q">Is everything here correct?</h2>
+            <p class="kp-finish-hint" id="validate-hint" aria-live="polite"></p>
+            <button type="button" class="btn btn-primary kp-validate-btn" id="validate-btn" aria-describedby="validate-hint">Mark as correct</button>
+          </section>
           <div class="kp-dock">
             <p class="kp-pen-hint" id="pen-hint" aria-live="polite" hidden></p>
             <div class="kp-tools" id="kp-tools" role="toolbar" aria-label="Ways to add to this page">
@@ -362,7 +365,7 @@ export function render(root, { id, pid }) {
     // What the agent made of the last pen marks, until the next change.
     const report = inkReport ? `<div class="kp-lead is-report">${icon('pen', { size: 18 })}<span>${esc(inkReport.text)}</span><button type="button" class="link-btn" data-undo-ink>Undo</button></div>` : '';
     if (open.length) {
-      return `${report}<div class="kp-lead">${icon('chat', { size: 18 })}<span>The twin agent left ${open.length === 1 ? 'a note' : `${open.length} notes`} on this page. Answer ${open.length === 1 ? 'it' : 'them'}, then press Validate.</span><button type="button" class="link-btn" data-goto-note>Go to the note</button></div>`;
+      return `${report}<div class="kp-lead">${icon('chat', { size: 18 })}<span>The twin agent left ${open.length === 1 ? 'a note' : `${open.length} notes`} on this page. Answer ${open.length === 1 ? 'it' : 'them'}, then press Mark as correct.</span><button type="button" class="link-btn" data-goto-note>Go to the note</button></div>`;
     }
     return `${report}<div class="kp-lead">${icon('check', { size: 18 })}<span>${status === 'complete' && !page.changed ? 'Validated.' : 'No notes left.'} Select any text to comment on it.</span></div>`;
   }
@@ -411,11 +414,13 @@ export function render(root, { id, pid }) {
     const open = openNotes().length;
     const needs = status !== 'complete' || page.changed;
     validateBtn.disabled = Boolean(open) || editing || inking;
-    validateBtn.innerHTML = needs ? 'Validate' : `${icon('map', { size: 18 })} Back to the map`;
+    validateBtn.innerHTML = needs ? 'Mark as correct' : `${icon('map', { size: 18 })} Back to the map`;
+    // Once validated and unchanged, only the way back to the map is left.
+    $('#finish-q').hidden = !needs;
     $('#validate-hint').textContent = editing ? 'Press Done to finish editing.'
       : inking ? 'Press Done to apply your marks, or Back.'
         : open ? `${open === 1 ? 'One note still needs' : `${open} notes still need`} you.`
-          : needs ? 'Check the page. If it’s right, press Validate.' : '';
+          : needs ? 'Check the summary, why and how, including your answer. If it’s right, your twin will use it.' : '';
     $('[data-tool="type"]').setAttribute('aria-pressed', String(editing));
   }
 
@@ -679,7 +684,7 @@ export function render(root, { id, pid }) {
     page.marks = page.marks.filter(stillThere);
     page.changed = true;
     save();
-    toast('Your changes are saved. Press Validate when you’re happy with the page.');
+    toast('Your changes are saved. Press Mark as correct when you’re happy with it.');
   }
 
   // ---------- Chat and Voice windows ----------
@@ -1146,10 +1151,12 @@ export function render(root, { id, pid }) {
         onNext: () => { tour.setStep('point-validate'); showTour(); },
       });
     } else if (step === 'point-validate') {
+      // The button sits after the last section, so bring it into view before pointing at it.
+      validateBtn.scrollIntoView({ block: 'center' });
       tour.coach({
-        target: '#validate-btn', step: 8, title: 'Check, then validate',
-        html: '<p>When no yellow notes are left, press <strong>Validate</strong>. You’ll go back to your mind map, where this point turns black.</p>',
-        waitFor: 'Press Validate to finish',
+        target: '#validate-btn', step: 8, title: 'Check, then mark as correct',
+        html: '<p>When no yellow notes are left, press <strong>Mark as correct</strong> at the end of the page. You’ll go back to your mind map, where this point turns black.</p>',
+        waitFor: 'Press Mark as correct to finish',
         padding: 10,
       });
     }
