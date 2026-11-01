@@ -80,21 +80,21 @@ export function icon(name, { size = 20, label = '' } = {}) {
   return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${a11y}>${ICONS[name] || ''}</svg>`;
 }
 
-// How the product works, in four steps: on the landing page (cards) and the dashboard (a row), so people know
+// How the product works, in four short steps: stacked cards on the landing page and a slim row on the dashboard, so people know
 // from the start that other people use the twin and the expert earns from it. The same steps drive the
 // progress chip at the top left of every twin-building screen.
 const HOW_STEPS = [
-  { icon: 'upload', title: 'Upload your files', text: 'Notes, runbooks, reports and transcripts about your work.' },
-  { icon: 'map', title: 'Get a mind map', text: 'The AI sorts what you know and finds the gaps.' },
-  { icon: 'edit', title: 'Fill the gaps', text: 'Add what’s missing and confirm each point is right.' },
-  { icon: 'coin', title: 'Publish and earn', text: 'People ask your twin, and you earn a royalty for each answer.' },
+  { icon: 'upload', title: 'Upload your files' },
+  { icon: 'map', title: 'Get a mind map' },
+  { icon: 'edit', title: 'Fill the gaps' },
+  { icon: 'coin', title: 'Publish and earn' },
 ];
 export function howItWorks(layout = 'row') {
   return `<section class="how-strip is-${layout}" aria-labelledby="how-h">
     <h2 class="how-title" id="how-h">How it works</h2>
     <ol class="how-steps">${HOW_STEPS.map((s, i) => `<li>
-      <span class="how-mark"><span class="how-icon">${icon(s.icon, { size: 20 })}</span><span class="how-num">Step ${i + 1}</span></span>
-      <strong>${s.title}</strong><span class="how-text">${s.text}</span></li>`).join('')}</ol>
+      <span class="how-icon">${icon(s.icon, { size: layout === 'row' ? 16 : 20 })}</span>
+      <span class="how-label"><span class="how-num">Step ${i + 1}</span><strong>${s.title}</strong></span></li>`).join('')}</ol>
   </section>`;
 }
 
