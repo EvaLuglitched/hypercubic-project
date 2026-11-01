@@ -193,7 +193,7 @@ export function ready(root, { id }) {
       </div>
       <section class="release-bar" aria-label="Release">
         <div><h2 style="font-size:1.25rem;font-weight:600">${published ? 'Your twin is live' : 'Release your twin'}</h2><p class="muted">${published ? 'People you chose can ask it questions now.' : termsDone ? 'Everything is set. Publishing makes it available to the people you chose.' : 'Set up terms and royalties first.'}</p></div>
-        ${published ? `<a class="btn btn-primary btn-lg" href="#/twin/${id}/published">View published twin</a>` : `<button type="button" class="btn btn-primary btn-lg" data-publish ${termsDone ? '' : 'disabled'}>Release / Publish</button>`}
+        ${published ? `<a class="btn btn-primary btn-lg" href="#/twin/${id}/published">View published twin</a>` : termsDone ? '<button type="button" class="btn btn-primary btn-lg" data-publish>Release / Publish</button>' : `<a class="btn btn-primary btn-lg" href="#/twin/${id}/terms">Set up terms to publish ${icon('arrowRight', { size: 18 })}</a>`}
       </section>
     </main>
   </div>`;
