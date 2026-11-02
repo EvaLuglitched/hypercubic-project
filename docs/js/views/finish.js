@@ -157,7 +157,7 @@ export function validate(root, { id }) {
       <p class="muted" style="margin-top:1rem">${good ? 'You can still improve any answer later from the mind map.' : 'Answers drop when knowledge points aren’t validated yet. Fill those gaps, or accept the twin as it is: it will say “I don’t know” where it isn’t sure.'}</p>
       <div class="choices" style="justify-content:flex-end;margin-top:1.25rem">
         <a class="btn" href="#/twin/${id}/map">Improve on the mind map</a>
-        <button type="button" class="btn btn-primary" data-accept>${good ? 'Continue' : 'Accept and continue'} ${icon('arrowRight', { size: 18 })}</button>
+        <button type="button" class="btn btn-primary" data-accept>${good ? 'Next: set terms and publish' : 'Accept and continue'} ${icon('arrowRight', { size: 18 })}</button>
       </div>`;
     box.querySelector('[data-accept]').addEventListener('click', () => {
       updateTwin(id, (t) => { if (t.status !== 'published') t.status = 'ready'; });
@@ -187,13 +187,13 @@ export function ready(root, { id }) {
         <p class="lead">${v ? `In the final check, your twin’s answers were <strong>${v.overall}% similar</strong> to yours.` : 'Your twin has taken in everything you validated.'} Try it, decide who can use it, and publish it when you’re happy.</p>
       </header>
       <div class="option-grid">
-        <a class="option-card" href="#/twin/${id}/try"><span class="option-icon">${icon('chat')}</span><h3>Try your twin</h3><p class="muted">Ask it questions the way ${esc(newcomer(twin))} would.</p></a>
-        <a class="option-card" href="#/twin/${id}/terms"><span class="option-icon">${icon('coin')}</span><h3>Terms and royalties</h3><p class="muted">Who can use it, and how you earn from it.</p>${termsDone ? `<span class="done-mark">${icon('check', { size: 14 })} Set up</span>` : '<span class="done-mark">Needed before you publish</span>'}</a>
-        <a class="option-card" href="#/twin/${id}/map"><span class="option-icon">${icon('edit')}</span><h3>Edit knowledge</h3><p class="muted">Go back to the mind map to fix or add anything.</p></a>
+        <a class="option-card" href="#/twin/${id}/terms"><span class="option-icon">${icon('coin')}</span><h3>Terms and royalties <span class="step-chip is-required">Required</span></h3><p class="muted">Who can use it, and how you earn from it.</p>${termsDone ? `<span class="done-mark">${icon('check', { size: 14 })} Set up</span>` : '<span class="done-mark">Needed before you publish</span>'}</a>
+        <a class="option-card" href="#/twin/${id}/try"><span class="option-icon">${icon('chat')}</span><h3>Try your twin <span class="step-chip">Optional</span></h3><p class="muted">Ask it questions the way ${esc(newcomer(twin))} would.</p></a>
+        <a class="option-card" href="#/twin/${id}/map"><span class="option-icon">${icon('edit')}</span><h3>Edit knowledge <span class="step-chip">Optional</span></h3><p class="muted">Go back to the mind map to fix or add anything.</p></a>
       </div>
       <section class="release-bar" aria-label="Release">
         <div><h2 style="font-size:1.25rem;font-weight:600">${published ? 'Your twin is live' : 'Release your twin'}</h2><p class="muted">${published ? 'People you chose can ask it questions now.' : termsDone ? 'Everything is set. Publishing makes it available to the people you chose.' : 'Set up terms and royalties first.'}</p></div>
-        ${published ? `<a class="btn btn-primary btn-lg" href="#/twin/${id}/published">View published twin</a>` : `<button type="button" class="btn btn-primary btn-lg" data-publish ${termsDone ? '' : 'disabled'}>Release / Publish</button>`}
+        ${published ? `<a class="btn btn-primary btn-lg" href="#/twin/${id}/published">View published twin</a>` : termsDone ? '<button type="button" class="btn btn-primary btn-lg" data-publish>Release / Publish</button>' : `<a class="btn btn-primary btn-lg" href="#/twin/${id}/terms">Set up terms to publish ${icon('arrowRight', { size: 18 })}</a>`}
       </section>
     </main>
   </div>`;
@@ -216,10 +216,19 @@ export function ready(root, { id }) {
 }
 
 // ---------- Terms and royalties ----------
+// The three per-answer rates an expert picks from, recommended first.
+const RATES = [
+  { rate: 0.25, label: 'Recommended', recommended: true, why: 'The average other experts charge. A good place to start.' },
+  { rate: 0.5, label: 'Higher', why: 'Above average. Suits specialized knowledge that few others can offer.' },
+  { rate: 0.1, label: 'Lower', why: 'Below average. A more competitive rate, so more people are likely to use your twin.' },
+];
+
 export function terms(root, { id }) {
   const twin = guard(id);
   if (!twin) return;
   const t = twin.terms || { access: 'company', model: 'per-answer', rate: 0.25, credit: true, escalate: true, limits: '', consent: false };
+  // A saved rate that isn't one of the three choices any more falls back to the recommended one.
+  const rate = RATES.some((r) => r.rate === Number(t.rate)) ? Number(t.rate) : 0.25;
   root.innerHTML = `
   <div class="flow-screen">
     ${crumb(twin)}
@@ -245,8 +254,10 @@ export function terms(root, { id }) {
             <label class="radio-card"><input type="radio" name="model" value="license" ${t.model === 'license' ? 'checked' : ''}><span><strong>License share</strong><span class="muted">20% of what each team or partner pays per month to use your twin.</span></span></label>
           </div>
           <div class="field" id="rate-field" style="margin-top:1.25rem">
-            <label for="rate">Rate per answer</label>
-            <select class="select" id="rate" style="max-width:14rem">${[0.1, 0.25, 0.5, 1].map((r) => `<option value="${r}" ${Number(t.rate) === r ? 'selected' : ''}>${money(r)} per answer</option>`).join('')}</select>
+            <span class="field-label" id="rate-h">Rate per answer</span>
+            <div class="radio-cards" role="radiogroup" aria-labelledby="rate-h">
+              ${RATES.map((r) => `<label class="radio-card"><input type="radio" name="rate" value="${r.rate}" ${rate === r.rate ? 'checked' : ''}><span><strong>${money(r.rate)} per answer <span class="step-chip${r.recommended ? ' is-required' : ''}">${r.label}</span></strong><span class="muted">${r.why}</span></span></label>`).join('')}
+            </div>
           </div>
           <div class="field" style="margin-top:.5rem">
             <label for="volume">If your twin answers <span id="volume-out">200</span> questions a month</label>
@@ -281,7 +292,7 @@ export function terms(root, { id }) {
     form.querySelector('#volume-out').textContent = volume;
     form.querySelector('#rate-field').hidden = model === 'license';
     const fee = { team: 150, company: 400, partners: 1200 }[access];
-    const amount = model === 'license' ? fee * 0.2 * Math.max(1, Math.round(volume / 200)) : volume * Number(form.querySelector('#rate').value);
+    const amount = model === 'license' ? fee * 0.2 * Math.max(1, Math.round(volume / 200)) : volume * Number(form.querySelector('input[name="rate"]:checked').value);
     form.querySelector('#estimate').textContent = `${money(amount)} a month`;
   };
   form.addEventListener('input', est);
@@ -301,7 +312,7 @@ export function terms(root, { id }) {
       x.terms = {
         access: form.querySelector('input[name="access"]:checked').value,
         model: form.querySelector('input[name="model"]:checked').value,
-        rate: Number(form.querySelector('#rate').value),
+        rate: Number(form.querySelector('input[name="rate"]:checked').value),
         credit: form.querySelector('#credit').checked,
         escalate: form.querySelector('#escalate').checked,
         limits: form.querySelector('#limits').value.trim(),
