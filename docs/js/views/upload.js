@@ -1,5 +1,5 @@
 // P1: upload documents (Start session → Uploading external sources → Document input / file upload).
-import { esc, icon, logoMark, PRODUCT, dialog, go, toast, fmtBytes, focusHeading } from '../ui.js';
+import { esc, icon, dialog, go, toast, fmtBytes, focusHeading, journeyChip } from '../ui.js';
 import { store, getTwin, updateTwin } from '../store.js';
 import { categoryById, categoryFor } from '../demo.js';
 import { chooseCategory } from './demo-picker.js';
@@ -34,7 +34,7 @@ export function render(root, { id, query }) {
 
   root.innerHTML = `
   <div class="upload-screen">
-    <a class="crumb" href="${adding ? `#/twin/${id}/map` : '#/home'}" aria-label="${adding ? 'Back to the mind map' : 'Back to your dashboard'}">${logoMark()}<span>${PRODUCT}</span><span class="crumb-sep" aria-hidden="true">/</span><span>${adding ? 'Mind Map' : esc(twin.name)}</span></a>
+    ${journeyChip(twin, 1)}
     <main class="upload-main" id="main">
       <div class="upload-head">
         <h1 class="upload-title">${adding ? 'Add More Documents' : 'Upload All Relevant Documents'}</h1>

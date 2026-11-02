@@ -1,5 +1,5 @@
 // Sign up, log in and "About you" (Account creation → Enter personal info → Profile created).
-import { esc, logoMark, PRODUCT, dialog, go, toast, firstName, focusHeading } from '../ui.js';
+import { esc, logoMark, PRODUCT, dialog, go, toast, firstName, focusHeading, howItWorks } from '../ui.js';
 import { store, createAccount, logIn, logInDemo } from '../store.js';
 import { CATEGORIES, categoryById } from '../demo.js';
 import { chooseCategory } from './demo-picker.js';
@@ -28,6 +28,7 @@ function shell(inner) {
         <p class="display auth-display">Your knowledge keeps working.</p>
         <p class="auth-lead">Build a digital twin of what you know about your work. The people who come after you get answers in your words, and you keep the credit and the royalties.</p>
       </div>
+      ${howItWorks('cards')}
       ${graphArt()}
       <p class="tiny muted">Prototype for usability testing. <button type="button" class="link-btn" data-reset>Reset demo data</button></p>
     </aside>
