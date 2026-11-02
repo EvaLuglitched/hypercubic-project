@@ -355,6 +355,10 @@ button.stat-link { font: inherit; color: inherit; text-align: left; cursor: poin
 .demo-note-text { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
 .demo-note + .file-list { margin-top: 0.5rem; }
 .file-list { list-style: none; display: flex; flex-direction: column; margin-top: 1.125rem; }
+.file-list-head { margin-top: 1.125rem; padding: 0 0.25rem; }
+.file-list-head .check { margin: 0 0 0.5rem; font-weight: 500; }
+.file-list-head + .file-list { margin-top: 0; }
+.file-check { flex: none; width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--ink); cursor: pointer; }
 .file-list:empty { display: none; }
 .file-row { display: flex; align-items: center; gap: 0.875rem; padding: 0.75rem 0.25rem; border-top: 1px solid var(--line); }
 .file-icon { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 0.625rem; background: var(--paper); display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.6875rem; font-weight: 600; }
