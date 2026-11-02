@@ -131,7 +131,7 @@ export function chooseTask(tasksEl) {
   help.setAttribute('role', 'dialog');
   help.setAttribute('aria-label', 'Tour');
   help.innerHTML = `<p class="coach-step">Tour · step 4 of ${TOTAL}</p>
-    <p>Each task is a knowledge point that needs you. Click one to open it.</p>
+    <p>Each task is a knowledge point that needs more info. Click one to open it.</p>
     <div class="coach-actions"><button type="button" class="btn btn-ghost btn-sm" data-skip>Skip tour</button></div>`;
   document.body.append(pill, arrow, help);
   help.querySelector('[data-skip]').addEventListener('click', () => end());

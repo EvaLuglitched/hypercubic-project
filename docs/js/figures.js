@@ -59,7 +59,7 @@ function lines(f) {
   <p class="fig-legend">${f.series.map((s, i) => `<span><svg width="26" height="8" aria-hidden="true"><line x1="0" y1="4" x2="26" y2="4" class="fig-series ${styles[i % styles.length]}"></line></svg>${esc(s.name)}</span>`).join('')}</p>`;
 }
 
-// A journey: one dot per stage, joined by a line, with the low point ringed like a "Needs you" point.
+// A journey: one dot per stage, joined by a line, with the low point ringed like a "Needs more info" point.
 function curve(f) {
   const W = 560;
   const H = 190;

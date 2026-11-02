@@ -11,7 +11,7 @@ import { projectsFor } from '../demo.js';
 import { figureHTML } from '../figures.js';
 import * as tour from '../tour.js';
 
-const STATUS = { complete: 'Validated', missing: 'Needs you', conflict: 'Sources disagree' };
+const STATUS = { complete: 'Validated', missing: 'Needs more info', conflict: 'Sources disagree' };
 const NOTE_LABEL = { missing: 'Missing from your files.', differ: 'Your projects differ.', conflict: 'Your files disagree.' };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const nid = (prefix = 'b') => `${prefix}${Math.random().toString(36).slice(2, 9)}`;
@@ -393,7 +393,7 @@ export function render(root, { id, pid }) {
     $('#kp-rail').innerHTML = `
       <div class="kp-rail-group">
         <h2 class="kp-rail-title">Outline</h2>
-        <ol class="kp-toc">${present.map((s) => `<li><button type="button" data-toc="${s.key}">${s.label}${page.notes.some((n) => n.at === s.key && n.state !== 'done') ? '<span class="dot-mini is-gap" aria-label="needs you"></span>' : ''}</button></li>`).join('')}</ol>
+        <ol class="kp-toc">${present.map((s) => `<li><button type="button" data-toc="${s.key}">${s.label}${page.notes.some((n) => n.at === s.key && n.state !== 'done') ? '<span class="dot-mini is-gap" aria-label="needs more info"></span>' : ''}</button></li>`).join('')}</ol>
       </div>
       <div class="kp-rail-group"><h2 class="kp-rail-title">Section</h2><p class="kp-rail-text">${esc(section.title)}</p></div>
       ${mine.length ? `<div class="kp-rail-group"><h2 class="kp-rail-title">Projects</h2><ul class="kp-projects">${mine.map((pr) => `<li><span class="proj-dot" aria-hidden="true"></span>${esc(pr.name)}</li>`).join('')}</ul></div>` : ''}
