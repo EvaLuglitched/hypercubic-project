@@ -720,9 +720,11 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
 .fig-table thead th { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; color: var(--muted); }
 .fig-table tbody th { min-width: 5.5rem; font-family: var(--mono); font-weight: 600; }
 
-/* Validate, top right */
-.point-top .validate-hint { max-width: 15rem; font-size: 0.8125rem; line-height: 1.35; color: var(--muted); text-align: right; }
-.point-top .validate-hint:empty { display: none; }
+/* Mark as correct, after the last section: where reading ends */
+.kp-finish { flex: none; max-width: 46rem; margin-top: 2.5rem; margin-bottom: 1.25rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.kp-finish-q { font-size: 1.125rem; font-weight: 600; }
+.kp-finish-hint { margin: 0.375rem 0 1rem; color: var(--muted); }
+.kp-finish-hint:empty { display: none; }
 .kp-validate-btn { padding: 0 1.25rem; }
 
 /* Type, Chat, Voice and Pen float at the bottom, like Figma's toolbar. Pen swaps in its own tools. */
@@ -829,12 +831,11 @@ html[data-motion="reduced"] .dots { width: auto; animation: none; }
   .kp-scroll { --pad-l: 1.5rem; --pad-r: 1.5rem; padding-top: 2rem; }
   .kp-doc { margin: 0 auto; }
   .kp-dock { align-self: center; }
-  .point-top .validate-hint { display: none; }
+  .kp-finish { width: 100%; margin-left: auto; margin-right: auto; }
 }
 @media (max-width: 720px) {
   .kp-screen .point-titles { flex: 1 1 calc(100% - 4rem); }
   .kp-screen .point-top-actions { width: 100%; }
-  .kp-validate-btn { margin-left: auto; }
   .kp-scroll { --pad-l: 1rem; --pad-r: 1rem; padding-top: 1.5rem; padding-bottom: 0.75rem; }
   .kp-dock { bottom: 0.75rem; }
   .kp-tool { min-width: 3.125rem; height: 3.25rem; padding: 0 0.25rem; font-size: 0.6875rem; }
